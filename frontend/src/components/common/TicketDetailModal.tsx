@@ -6,7 +6,7 @@ import { X, Loader2 } from 'lucide-react';
 interface TicketDetailModalProps {
     ticket: any;
     onClose: () => void;
-    onCancelTicket: (ticketId: string) => void;
+    onCancelTicket?: (ticketId: string) => void;
     closedText?: string; 
 }
 
@@ -150,7 +150,7 @@ export default function TicketDetailModal({ ticket, onClose, onCancelTicket, clo
                             })()}
                         </div>
                     </div>
-                    {ticket.status === 'PENDING' && (
+                    {onCancelTicket && ticket.status === 'PENDING' && (
                         <button 
                             onClick={() => onCancelTicket(ticket.id)} 
                             className="w-full py-3 bg-white text-red-600 font-bold rounded-xl border-2 border-red-100 hover:bg-red-50 hover:border-red-200 transition-all shadow-sm"

@@ -27,7 +27,7 @@ import Dashboard from './pages/admin/Dashboard';
 
 // Pages - Member
 import MemberLayout from './layouts/MemberLayout';
-import HistoryMain from './pages/member/HistoryMain';
+import History from './pages/dashboard/History';
 import LottoMarket from './pages/member/LottoMarket';
 import BettingRoom from './pages/member/BettingRoom';
 import MemberResults from './pages/member/MemberResults';
@@ -154,7 +154,7 @@ function App() {
             <Route element={<MemberLayout />}>
               <Route path="play" element={<LottoMarket />} />
               <Route path="play/:id" element={<BettingRoom />} />
-              <Route path="history" element={<HistoryMain />} />
+              <Route path="history" element={<History />} />
               <Route path="results" element={<MemberResults />} />
               <Route path="profile" element={<Profile />} />
               <Route path="resultslink" element={<LottoResultLinks />} />

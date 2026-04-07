@@ -1,12 +1,11 @@
 import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import client from '../../api/client';
 import { 
-  RefreshCw, Eye, Layers, Ban,
+  RefreshCw, Eye, Layers,
   TrendingUp, Banknote, ArrowDown, ArrowRight, Loader2,
   RotateCcw, Check
 } from 'lucide-react';
 import { calculateWinAmount, calculateNet } from '../../utils/lottoHelpers';
-import { alertAction, confirmAction } from '../../utils/toastUtils';
 import QuickDateFilters from '../../components/common/QuickDateFilters';
 import TicketDetailModal from '../../components/common/TicketDetailModal';
 
@@ -111,21 +110,6 @@ export default function History() {
         setLoading(false); 
         setInitialLoad(false);
     }
-  };
-  
-  const handleCancel = async (ticketId: string) => {
-    confirmAction('ยืนยันยกเลิกโพยนี้?', async () => {
-        try {
-          await client.patch(`/play/tickets/${ticketId}/cancel`);
-          alertAction('ยกเลิกสำเร็จ', 'สำเร็จ', 'success');
-          
-          setTickets(prev => prev.map(t => 
-              t.id === ticketId ? { ...t, status: 'CANCELLED' } : t
-          ));
-          
-          setSelectedTicket(null);
-        } catch (err: any) { alertAction(`Error: ${err.response?.data?.detail}`, 'ข้อผิดพลาด', 'error'); }
-    }, 'ยกเลิกโพย', 'ปิด');
   };
 
   const renderWinStatus = (ticket: any) => {
@@ -360,8 +344,7 @@ export default function History() {
                                     <th className="p-4 text-center">6. กำไร/ขาดทุน</th>
                                     <th className="p-4 text-center">7. หมายเหตุ</th>
                                     <th className="p-4 text-center">8. รายละเอียด</th>
-                                    <th className="p-4 text-center">9. ยกเลิก</th>
-                                    <th className="p-4 text-center">10. ผู้ลงบิล</th>
+                                    
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
@@ -378,16 +361,6 @@ export default function History() {
                                         <td className="p-4 text-center text-xs text-gray-500">{t.note || '-'}</td>
                                         <td className="p-4 text-center">
                                             <button onClick={() => setSelectedTicket(t)} className="text-slate-400 hover:text-blue-600"><Eye size={18} /></button>
-                                        </td>
-                                        <td className="p-4 text-center">
-                                            {t.status === 'PENDING' && (
-                                                <button onClick={() => handleCancel(t.id)} className="text-red-400 hover:text-red-600"><Ban size={16} /></button>
-                                            )}
-                                        </td>
-                                        <td className="p-4 text-xs text-slate-600 text-center">
-                                            <div className="font-bold bg-slate-100 px-2 py-0.5 rounded-full inline-block border border-slate-200">
-                                                {t.user?.username}
-                                            </div>
                                         </td>
                                     </tr>
                                 ))}
@@ -454,7 +427,6 @@ export default function History() {
       <TicketDetailModal 
           ticket={selectedTicket} 
           onClose={() => setSelectedTicket(null)} 
-          onCancelTicket={handleCancel} 
       />
     </div>
   );
