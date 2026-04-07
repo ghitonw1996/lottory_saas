@@ -277,19 +277,17 @@ def cancel_ticket(
     if not ticket:
         raise HTTPException(status_code=404, detail="Ticket not found")
 
-    # ตรวจสอบสิทธิ์การยกเลิก:
-    # 1. Superadmin ยกเลิกได้ทุกอย่าง
-    # 2. Admin หรือ Member ยกเลิกได้เฉพาะใน Shop ตัวเอง (Member สามารถยกเลิกบิลของคนอื่นใน Shop ได้ตาม requirement)
-    
+    # 🌟 เช็คสิทธิ์แบบปิดตาย Member
     if current_user.role == UserRole.superadmin:
-        pass
-    elif current_user.role in [UserRole.admin, UserRole.member]:
-        # ต้องเป็นร้านเดียวกันเท่านั้น
+        pass # Superadmin ทำได้หมด
+    elif current_user.role == UserRole.admin:
+        # Admin ยกเลิกได้แค่บิลในร้านตัวเอง
         if ticket.shop_id != current_user.shop_id:
             raise HTTPException(status_code=403, detail="Cross-shop action denied")
     else:
+        # ถ้าเป็น Member (หรืออื่นๆ) จะเด้งออกตรงนี้ทันที!
         raise HTTPException(status_code=403, detail="Not authorized")
-
+    
     try:
         # คำนวณเงินที่จะคืนและเงินที่จะดึงกลับ
         refund_amount = Decimal(ticket.total_amount)
@@ -397,6 +395,10 @@ def get_shop_tickets(
     db: Session = Depends(get_db),
     current_user: User = Depends(deps.get_current_active_user)
 ):
+    # 🔥 ปิดช่องโหว่: ไม่อนุญาตให้ Member เข้าถึง API สรุปรวมของร้านเด็ดขาด
+    if current_user.role not in [UserRole.superadmin, UserRole.admin]:
+        raise HTTPException(status_code=403, detail="ไม่มีสิทธิ์เข้าถึงข้อมูลของร้าน")
+    
     if not current_user.shop_id:
          raise HTTPException(status_code=400, detail="No shop assigned")
 
@@ -454,11 +456,15 @@ def get_ticket_items(
     if not ticket:
         raise HTTPException(status_code=404, detail="ไม่พบโพย")
         
-    # 🌟 2. กำแพงตรวจสอบสิทธิ์ (อนุญาตแค่คนในร้านเดียวกัน)
+    # 🌟 2. กำแพงตรวจสอบสิทธิ์
     if current_user.role != UserRole.superadmin:
-        # ถ้าไม่ใช่ Superadmin ต้องตรวจบัตรว่า "อยู่ร้านเดียวกันไหม?"
+        # 2.1 ตรวจสอบว่าอยู่ร้านเดียวกันไหม
         if ticket.shop_id != current_user.shop_id:
             raise HTTPException(status_code=403, detail="ไม่มีสิทธิ์ดูโพยของร้านอื่น")
+            
+        # 2.2 🔥 ปิดช่องโหว่: ถ้าเป็นลูกค้าระดับ Member ต้องเป็นบิลของตัวเองเท่านั้น
+        if current_user.role == UserRole.member and ticket.user_id != current_user.id:
+            raise HTTPException(status_code=403, detail="ไม่มีสิทธิ์ดูรายละเอียดโพยของคนอื่น")
 
     # 3. ดึงรายการเลขของบิลนี้ส่งกลับไป
     items = db.query(TicketItem).filter(TicketItem.ticket_id == ticket_id).all()
