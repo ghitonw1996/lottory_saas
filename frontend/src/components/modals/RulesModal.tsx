@@ -15,7 +15,7 @@ export default function RulesModal({ isOpen, onClose }: RulesModalProps) {
         {/* Header */}
         <div className="bg-slate-900 px-6 py-4 flex justify-between items-center shrink-0">
           <h3 className="text-white font-bold text-lg flex items-center gap-2">
-            <FileText className="text-amber-400" /> กฎและกติกา NTLOT
+            <FileText className="text-amber-400" /> กฎและกติกา  Thailot
           </h3>
           <button 
             onClick={onClose}
@@ -34,7 +34,7 @@ export default function RulesModal({ isOpen, onClose }: RulesModalProps) {
             <div>
               <p className="font-bold text-amber-800 mb-1">ข้อตกลงเบื้องต้น</p>
               <p className="text-amber-700 text-xs">
-                NTLOT ยึดเอาข้อมูลที่เอเย่นต์และสมาชิกทุกคนทำรายการบนหน้าเว็บไซต์เป็นหลัก กรุณาตรวจสอบรายการเล่นและพิมพ์เก็บไว้เป็นหลักฐานเสมอ 
+               Thailot ยึดเอาข้อมูลที่เอเย่นต์และสมาชิกทุกคนทำรายการบนหน้าเว็บไซต์เป็นหลัก กรุณาตรวจสอบรายการเล่นและพิมพ์เก็บไว้เป็นหลักฐานเสมอ 
                 หากมีข้อสงสัยโปรดติดต่อต้นสายของท่านก่อนออกผลรางวัล มิเช่นนั้นบริษัทจะถือเอารายการแทงและข้อมูลที่เกิดขึ้นในเว็บไซต์เป็นหลักเสมอ
               </p>
             </div>

@@ -120,7 +120,7 @@ export default function Login() {
                 <h1 className="text-5xl font-black tracking-[0.2em] bg-linear-to-b from-[#FFF] via-[#d4af37] to-[#8a6e28] bg-clip-text text-transparent drop-shadow-sm select-none"
                     style={{ fontFamily: "'Cinzel', serif" }} 
                 >
-                    NTLOT
+                     Thailot
                 </h1>
                 
                 <p className="text-[#888] text-xs mt-2 uppercase tracking-widest font-medium">
