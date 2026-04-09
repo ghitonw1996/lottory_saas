@@ -20,7 +20,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
 
   // ----------------------------------------------------
-  // 1. ส่วนรับ Token จาก URL (Impersonate / Auto Login)
+  // 1. ส่วนรับ Token จาก URL (Impersonate / Auto Login) 
   // ----------------------------------------------------
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
