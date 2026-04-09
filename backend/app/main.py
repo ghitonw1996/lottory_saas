@@ -20,7 +20,7 @@ app.add_middleware(
     CORSMiddleware,
      allow_origin_regex=r"https?://(.*\.tlotthai\.com|tlotthai\.com)",
     
-    allow_credentials=True, # สำคัญมาก! ต้องเป็น True ถึงจะส่ง Token/Cookie ข้ามโดเมนได้
+    allow_credentials=True, 
     allow_methods=["*"],
     allow_headers=["*"],
     expose_headers=["*"]
