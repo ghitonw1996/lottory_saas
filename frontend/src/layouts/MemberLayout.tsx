@@ -131,7 +131,7 @@ export default function MemberLayout() {
                 ) : (
                     <div className="flex flex-col items-center mb-1">
                         <Crown className="w-8 h-8 text-[#d4af37] mb-1 drop-shadow-[0_0_8px_rgba(212,175,55,0.6)]" strokeWidth={1.5} />
-                        <h1 className="text-3xl font-black tracking-[0.2em] bg-linear-to-b from-[#FFF] via-[#d4af37] to-[#8a6e28] bg-clip-text text-transparent drop-shadow-sm select-none" style={{ fontFamily: "serif" }}>NTLOT</h1>
+                        <h1 className="text-3xl font-black tracking-[0.2em] bg-linear-to-b from-[#FFF] via-[#d4af37] to-[#8a6e28] bg-clip-text text-transparent drop-shadow-sm select-none" style={{ fontFamily: "serif" }}>thailotto</h1>
                     </div>
                 )}
                 <h2 className="text-sm font-bold text-white tracking-widest uppercase mt-1 text-shadow-sm opacity-90 truncate max-w-50">{displayShopName}</h2>

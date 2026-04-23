@@ -21,7 +21,8 @@ import ManageRates from './pages/admin/ManageRates'; // ใช้ร่วมก
 
 // Pages - Admin
 import AdminLayout from './layouts/AdminLayout';
-import ShopManagement from './pages/admin/ShopManagement'; 
+import ShopThemeManagement from './pages/admin/ShopThemeManagement'; 
+import LottoManagement from './pages/admin/LottoManagement'; 
 import ManageResults from './pages/admin/ManageResults';
 import Dashboard from './pages/admin/Dashboard';
 
@@ -90,7 +91,7 @@ function App() {
             <h1 className="text-4xl font-black text-slate-800 mb-2">404</h1>
             <h2 className="text-lg font-bold mb-4 text-slate-600">ไม่พบร้านค้าที่คุณต้องการ</h2>
             <p className="text-sm text-gray-400 leading-relaxed">
-                ลิงก์ที่คุณเข้าถึงอาจไม่ถูกต้อง หรือร้านค้านี้ถูกปิดให้บริการชั่วคราว<br/>กรุณาตรวจสอบ URL อีกครั้ง
+                ลิงก์ที่คุณเข้าถึงอาจไม่ถูกต้อง
             </p>
             <div className="mt-8 border-t border-gray-100 pt-6">
                 <a href="/" className="text-blue-600 font-bold hover:underline text-sm transition-all hover:text-blue-700">
@@ -118,7 +119,6 @@ function App() {
           }}
         />
         
-        {/* Banner Debug (แสดงเฉพาะตอน Development ให้รู้ว่าอยู่ร้านไหน) */}
         {import.meta.env.DEV && shop && (
             <div className="fixed bottom-2 right-2 z-9999 bg-black/80 text-white text-[10px] px-3 py-1 rounded-full pointer-events-none shadow-lg backdrop-blur-sm">
                 🏬 Shop Mode: <span className="font-bold text-yellow-400">{shop.name}</span>
@@ -143,8 +143,9 @@ function App() {
           <Route element={<RoleGuard allowedRoles={['superadmin', 'admin']} />}>
             <Route path="/admin" element={<AdminLayout />}>
               <Route path="dashboard" element={<Dashboard />} />
-              <Route path="shop" element={<ShopManagement />} /> 
-              <Route path="history" element={<ShopHistory />} />
+              <Route path="shop-lotto" element={<LottoManagement />} /> 
+              <Route path="shop-theme" element={<ShopThemeManagement />} /> 
+              <Route path="ShopHistory" element={<ShopHistory />} />
               <Route path="results" element={<ManageResults />} />
             </Route>
           </Route>

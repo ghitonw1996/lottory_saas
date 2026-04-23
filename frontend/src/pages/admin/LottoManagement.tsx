@@ -7,14 +7,14 @@ import ManageLottos from './ManageLottos';
 import ManageRates from './ManageRates'; 
 import ManageRisks from './ManageRisks';
 import DailyReport from './DailyReport';
-import ManageShopSettings from './ManageShopSettings'; 
+import CategoryColorSettings from './CategoryColorSettings'; 
 
-export default function ShopManagement() {
+export default function LottoManagement() {
   const [activeTab, setActiveTab] = useState('members');
 
   const tabs = [
     { id: 'members', label: 'สมาชิก', icon: Users },
-    { id: 'settings', label: 'ตั้งค่าร้าน', icon: Palette },
+    { id: 'category-colors', label: 'สีหมวดหมู่', icon: Palette },
     { id: 'rates', label: 'เรทจ่าย', icon: FileSpreadsheet },
     { id: 'lottos', label: 'ตั้งค่าหวย', icon: Settings },
     { id: 'risks', label: 'เลขอั้น', icon: ShieldAlert },
@@ -29,7 +29,7 @@ export default function ShopManagement() {
         <div className="p-4 md:p-6 border-b border-gray-100">
             <h2 className="text-xl md:text-2xl font-black text-gray-800 tracking-tight flex items-center gap-2">
                 <Store className="text-blue-600 hidden md:block" size={28} />
-                จัดการข้อมูลร้านค้า
+                จัดการข้อมูลหวยในร้านค้า
             </h2>
             <p className="text-xs md:text-sm text-gray-500 mt-1">
                 ตั้งค่าระบบสมาชิก, ราคาจ่าย, และรายการหวยทั้งหมด
@@ -75,9 +75,9 @@ export default function ShopManagement() {
             )}
 
             {/* Tab 2: การส่งแจ้งเตือน */}
-            {activeTab === 'settings' && (
+            {activeTab === 'category-colors' && (
                 <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                    <ManageShopSettings />
+                    <CategoryColorSettings />
                 </div>
             )}
 

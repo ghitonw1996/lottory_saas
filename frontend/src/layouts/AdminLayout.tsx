@@ -2,16 +2,7 @@ import { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'; 
 import { useAuth } from '../contexts/AuthContext';
 import { 
-  PieChart,
-  Ticket,
-  Trophy,
-  LogOut,
-  Settings,
-  ArrowRightCircle,
-  Menu, 
-  X,
-  Store,
-  Crown 
+  PieChart, Ticket, Trophy, LogOut, Settings, ArrowRightCircle, Menu, X, Store, Crown, Palette
 } from 'lucide-react'; 
 import { confirmAction } from '../utils/toastUtils';
 
@@ -45,11 +36,11 @@ export default function AdminLayout() {
       }
 
       // CASE 2: Production (ดีดกลับโดเมนหลัก)
-      const rootDomain = import.meta.env.VITE_ROOT_DOMAIN || 'ntlot.com'; // ⚠️ ค่าเดียวกับ .env
+      const rootDomain = import.meta.env.VITE_ROOT_DOMAIN || 'tlotthai.com';
       const protocol = window.location.protocol;
 
       confirmAction('ยืนยันกลับสู่ระบบจัดการหลัก (Super Admin)?', () => {
-          localStorage.removeItem('token'); // ลบ Token ร้านค้าทิ้ง
+          localStorage.removeItem('token'); 
           localStorage.removeItem('is_impersonating');
           
           // Redirect กลับบ้าน
@@ -60,8 +51,9 @@ export default function AdminLayout() {
 
   const menuItems = [
     { path: '/admin/dashboard', label: 'ภาพรวม', fullLabel: 'Dashboard', icon: PieChart },
-    { path: '/admin/shop', label: 'ตั้งค่าร้าน', fullLabel: 'จัดการร้าน & หวย', icon: Settings }, 
-    { path: '/admin/history', label: 'โพย', fullLabel: 'โพยทั้งหมด', icon: Ticket },
+    { path: '/admin/shop-lotto', label: 'หวย', fullLabel: 'จัดการหวย', icon: Settings }, 
+    { path: '/admin/shop-theme', label: 'ธีมร้าน', fullLabel: 'จัดการธีมร้าน', icon: Palette }, 
+    { path: '/admin/ShopHistory', label: 'โพย', fullLabel: 'โพยทั้งหมด', icon: Ticket },
     { path: '/admin/results', label: 'ผลรางวัล', fullLabel: 'ออกผลรางวัล', icon: Trophy },
   ];
 

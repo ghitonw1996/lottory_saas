@@ -8,6 +8,7 @@ interface Shop {
   logo_url?: string;
   theme_color?: string;
   line_id?: string;
+  login_config?: any;
 }
 
 interface ShopContextType {
