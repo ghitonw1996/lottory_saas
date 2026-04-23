@@ -29,7 +29,8 @@ def get_shop_config(subdomain: str, db: Session = Depends(get_db)):
         "id": shop.id,
         "name": shop.name,
         "logo_url": shop.logo_url,
-        "theme_color": shop.theme_color
+        "theme_color": shop.theme_color,
+        "login_config": shop.login_config
     }
 
 # [เพิ่มใหม่] API สำหรับ Admin ร้านค้า แก้ไขตั้งค่า LINE ของตัวเอง
@@ -64,6 +65,9 @@ def update_shop_config(
         
     if config_in.line_target_id is not None:
         shop.line_target_id = config_in.line_target_id
+
+    if config_in.login_config is not None:
+        shop.login_config = config_in.login_config
 
     db.commit()
     db.refresh(shop)

@@ -207,6 +207,15 @@ ALTER PUBLICATION supabase_realtime ADD TABLE users;
 ALTER PUBLICATION supabase_realtime ADD TABLE number_risks;
 ALTER PUBLICATION supabase_realtime ADD TABLE lotto_types;
 
+-- เพิ่ม % ค่าคอม ในตารางผู้ใช้งาน (สมาชิก)
+ALTER TABLE users ADD COLUMN commission_percent DECIMAL(5, 2) DEFAULT 0.00;
+
+-- เพิ่มยอดค่าคอมมิชชั่น (บาท) ในตารางบิล
+ALTER TABLE tickets ADD COLUMN commission_amount DECIMAL(15, 2) DEFAULT 0.00;
+
+-- เพิ่มยอดถูกรางวัลของบิล (บาท) ในตารางบิล
+ALTER TABLE tickets ADD COLUMN winning_amount NUMERIC(10, 2) DEFAULT 0;
+
 /* ==========================================================================
    ส่วนที่ 6: ข้อมูลตั้งต้น (Seeding - Optional)
    ========================================================================== */

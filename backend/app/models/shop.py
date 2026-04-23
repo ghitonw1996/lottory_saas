@@ -1,8 +1,8 @@
 import uuid
 from sqlalchemy import Column, String, Boolean, DateTime, func
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
-from app.db.base_class import Base # เรียกใช้ Base ตัวใหม่
+from app.db.base_class import Base 
 
 class Shop(Base):
     __tablename__ = "shops"
@@ -18,6 +18,18 @@ class Shop(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     line_channel_token = Column(String, nullable=True)
     line_target_id = Column(String, nullable=True)
+    login_config = Column(JSONB, default={
+        "background_url": "",
+        "background_overlay": 0.3,
+        "box_position": {"x": 50, "y": 50}, # กลางหน้าจอ (หน่วย %)
+        "box_style": {
+            "is_glassmorphism": True,
+            "border_color": "#ffd700",
+            "border_width": 2
+        },
+        "logo_size": 120,
+        "font_family": "Kanit"
+    })
     
     # Relationship: เชื่อมไปหา User (ใช้ string "User" เพื่อเลี่ยง circular import)
     users = relationship("User", back_populates="shop", cascade="all, delete-orphan")
