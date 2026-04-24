@@ -95,7 +95,7 @@ export default function ManageShopTheme() {
         formData.append('folder', 'theme');
 
         try {
-            const res = await client.post('/upload/image', formData, {
+            const res = await client.post('/upload/', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             

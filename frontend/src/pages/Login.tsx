@@ -97,8 +97,9 @@ export default function Login() {
         style={{ backgroundColor: `rgba(0, 0, 0, ${config.background_overlay ?? 0.3})` }}
       />
 
+      {/* 🟢 กล่อง Login แบบขยับตำแหน่งได้ */}
       <div 
-        className={`relative z-10 w-full max-w-md p-8 m-4 transition-all duration-500
+        className={`relative z-10 w-[90%] sm:w-full max-w-md p-6 sm:p-8 transition-all duration-500
           ${config.box_style?.is_glassmorphism 
             ? 'bg-white/10 backdrop-blur-2xl border-white/20' 
             : 'bg-slate-900 border-slate-700'} 
@@ -108,7 +109,8 @@ export default function Login() {
           left: `${config.box_position?.x ?? 50}%`,
           top: `${config.box_position?.y ?? 50}%`,
           transform: 'translate(-50%, -50%)',
-          borderColor: config.box_style?.border_color || '#ffd700'
+          borderColor: config.box_style?.border_color || '#ffd700',
+          margin: 0 // 🟢 บังคับไม่ให้มี margin มาดันกล่องจนเบี้ยว
         }}
       >
         <div className="flex flex-col items-center mb-8">
