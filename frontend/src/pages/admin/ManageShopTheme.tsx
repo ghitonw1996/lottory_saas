@@ -20,6 +20,7 @@ export default function ManageShopTheme() {
     // State สำหรับควบคุมตำแหน่งกล่องให้ลื่นไหล (คำนวณจากมุมซ้ายบน)
     const [dragPos, setDragPos] = useState({ x: 0, y: 0 });
     const [shopData, setShopData] = useState({
+        name: '',
         logo_url: '',
         theme_color: '#2563EB',
         line_channel_token: '',
@@ -48,6 +49,7 @@ export default function ManageShopTheme() {
             if (res.data && res.data.length > 0) {
                 const myShop = res.data[0];
                 setShopData({
+                    name: myShop.name || '',
                     logo_url: myShop.logo_url || '',
                     theme_color: myShop.theme_color || '#2563EB',
                     line_channel_token: myShop.line_channel_token || '',
@@ -203,7 +205,6 @@ export default function ManageShopTheme() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                
                 {/* Left Controls */}
                 <div className="lg:col-span-1 space-y-6">
                     
@@ -432,26 +433,51 @@ export default function ManageShopTheme() {
                             >
                                 <div 
                                     ref={draggableNodeRef}
-                                    className={`absolute z-10 p-8 cursor-move select-none transition-shadow
+                                    className={`absolute z-10 w-[90%] sm:w-full p-6 sm:p-8 cursor-move select-none transition-shadow
                                         ${shopData.login_config.box_style.is_glassmorphism 
                                             ? 'bg-white/10 backdrop-blur-2xl border-white/20' 
                                             : 'bg-slate-900 border-slate-700'} 
-                                        border shadow-2xl rounded-4xl flex flex-col items-center space-y-5 overflow-hidden`}
-                                        style={{ 
-                                            width: `${shopData.login_config.box_style.width ?? 400}px`,
-                                            height: `${shopData.login_config.box_style.height ?? 400}px`,
-                                            borderRadius: `${shopData.login_config.box_style.border_radius ?? 24}px`
-                                        }}
+                                        border shadow-2xl flex flex-col justify-center overflow-hidden`}
+                                    style={{ 
+                                        width: `${shopData.login_config.box_style.width ?? 400}px`,
+                                        minHeight: `${shopData.login_config.box_style.height ?? 400}px`, // 🟢 ใช้ minHeight ให้เหมือนของจริง
+                                        borderRadius: `${shopData.login_config.box_style.border_radius ?? 24}px`
+                                    }}
                                 >
-                                    <div className="w-16 h-16 bg-white/5 rounded-2xl border border-white/10 flex items-center justify-center">
-                                        <Move size={24} className="text-white/20 animate-pulse" />
+                                    {/* ไอคอน Move สำหรับบอกว่าลากได้ */}
+                                    <div className="absolute top-4 right-4 text-white/30 animate-pulse pointer-events-none">
+                                        <Move size={20} />
                                     </div>
-                                    <div className="space-y-2 w-full">
-                                        <div className="h-1.5 w-1/2 bg-white/20 rounded-full mx-auto" />
-                                        <div className="h-8 w-full bg-blue-500/40 rounded-xl" />
-                                        <div className="h-8 w-full bg-slate-700/50 rounded-xl" />
+
+                                    {/* 🟢 โคลน UI จากหน้า Login.tsx มาวางใน Canvas เพื่อสัดส่วนที่ตรงกัน 100% */}
+                                    <div className="flex flex-col items-center mb-6 pointer-events-none">
+                                        {shopData.logo_url ? (
+                                            <img src={shopData.logo_url} className="w-20 h-20 object-contain mb-4 drop-shadow-2xl" />
+                                        ) : (
+                                            <div className="w-20 h-20 rounded-full border border-yellow-500/30 bg-black/50 flex items-center justify-center mb-4">
+                                                <div className="text-yellow-500 text-3xl font-black">👑</div>
+                                            </div>
+                                        )}
+                                        <h1 className="text-3xl font-black tracking-widest text-yellow-500 drop-shadow-sm uppercase">
+                                            {shopData.name || 'Thailot'}
+                                        </h1>
+                                        <div className="h-1 w-12 bg-yellow-500 mt-2 rounded-full"></div>
                                     </div>
-                                    <p className="text-[10px] text-white/30 font-black uppercase tracking-widest">Drag to Position</p>
+
+                                    {/* ช่อง Input จำลอง (ช่วยรักษาความกว้าง/สูง ให้กล่องสมดุล) */}
+                                    <div className="w-full space-y-4 pointer-events-none opacity-80">
+                                        <div className="h-12 w-full bg-black/40 border border-white/10 rounded-xl flex items-center px-4">
+                                            <div className="w-4 h-4 rounded-full bg-slate-500"></div>
+                                            <div className="ml-3 h-2 w-32 bg-slate-500 rounded-full"></div>
+                                        </div>
+                                        <div className="h-12 w-full bg-black/40 border border-white/10 rounded-xl flex items-center px-4">
+                                            <div className="w-4 h-4 rounded-full bg-slate-500"></div>
+                                            <div className="ml-3 h-2 w-24 bg-slate-500 rounded-full"></div>
+                                        </div>
+                                        <div className="h-12 w-full bg-linear-to-r from-yellow-600 to-yellow-400 rounded-xl mt-6 flex items-center justify-center">
+                                            <span className="text-xs font-bold text-black">LOGIN ACCESS</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </Draggable>
 
