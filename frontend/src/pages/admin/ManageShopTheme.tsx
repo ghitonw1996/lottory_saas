@@ -31,7 +31,10 @@ export default function ManageShopTheme() {
             box_style: { 
                 is_glassmorphism: true, 
                 border_color: '#ffd700',
-                border_width: 2 
+                border_width: 2,
+                width: 400,
+                height: 400,
+                border_radius: 24
             },
             logo_size: 120,
             font_family: 'Kanit'
@@ -63,28 +66,38 @@ export default function ManageShopTheme() {
         fetchShopConfig();
     }, []);
 
-    // 🟢 แปลงค่าพิกัด Database (Center) -> ให้ Draggable (Top-Left) ตอนโหลดเสร็จ
+    // 🟢 แปลงค่าพิกัด Database (Center) -> ให้ Draggable (Top-Left)
     useEffect(() => {
         const timer = setTimeout(() => {
-            if (previewRef.current && draggableNodeRef.current && !loading) {
+            // ไม่ต้องรอ draggableNodeRef แล้ว เพราะเรามีขนาดที่แน่นอนจาก State
+            if (previewRef.current && !loading) {
                 const containerW = previewRef.current.offsetWidth;
                 const containerH = previewRef.current.offsetHeight;
-                const boxW = draggableNodeRef.current.offsetWidth;
-                const boxH = draggableNodeRef.current.offsetHeight;
+                
+                // 🟢 ดึงขนาดปัจจุบันจาก State มาใช้คำนวณ
+                const boxW = shopData.login_config.box_style.width ?? 400;
+                const boxH = shopData.login_config.box_style.height ?? 400;
 
                 // หาจุดกึ่งกลางเป็น Pixel
                 const centerX = (shopData.login_config.box_position.x * containerW) / 100;
                 const centerY = (shopData.login_config.box_position.y * containerH) / 100;
 
-                // เซ็ตค่าให้ Draggable ดึงจากมุมซ้ายบน
+                // เซ็ตค่าให้ Draggable ขยับมุมซ้ายบนใหม่
                 setDragPos({
                     x: centerX - (boxW / 2),
                     y: centerY - (boxH / 2)
                 });
             }
-        }, 200); // ดีเลย์เล็กน้อยรอให้ DOM เรนเดอร์กล่องเสร็จ
+        }, 50); 
         return () => clearTimeout(timer);
-    }, [loading]);
+    }, [
+        loading, 
+        // 🟢 เพิ่ม Dependencies: สั่งให้ทำงานใหม่ทุกครั้งที่ค่าเหล่านี้เปลี่ยน
+        shopData.login_config.box_style.width, 
+        shopData.login_config.box_style.height,
+        shopData.login_config.box_position.x,
+        shopData.login_config.box_position.y
+    ]);
 
     const handleFileUpload = async (file: File, type: 'logo' | 'background') => {
         const isLogo = type === 'logo';
@@ -316,6 +329,64 @@ export default function ManageShopTheme() {
                                 className="w-5 h-5 accent-indigo-600 cursor-pointer"
                             />
                         </div>
+                        {/* 🟢 ส่วนปรับขนาดความกว้างกล่อง */}
+                        <div className="space-y-3">
+                            <div className="flex justify-between">
+                                <label className="text-xs font-black text-slate-400 uppercase">ความกว้างกล่อง</label>
+                                <span className="text-xs font-bold text-blue-600">{shopData.login_config.box_style.width || 400}px</span>
+                            </div>
+                            <input 
+                                type="range" min="300" max="600" step="10"
+                                value={shopData.login_config.box_style.width || 400}
+                                onChange={(e) => setShopData({
+                                    ...shopData, 
+                                    login_config: {
+                                        ...shopData.login_config, 
+                                        box_style: {...shopData.login_config.box_style, width: parseInt(e.target.value)}
+                                    }
+                                })}
+                                className="w-full accent-blue-500 h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer"
+                            />
+                        </div>
+                        {/* 🟢 ส่วนปรับขนาดความสูงกล่อง */}
+                        <div className="space-y-3">
+                            <div className="flex justify-between">
+                                <label className="text-xs font-black text-slate-400 uppercase">ความสูงกล่อง</label>
+                                <span className="text-xs font-bold text-blue-600">{shopData.login_config.box_style.height || 400}px</span>
+                            </div>
+                            <input 
+                                type="range" min="300" max="600" step="10"
+                                value={shopData.login_config.box_style.height || 400}
+                                onChange={(e) => setShopData({
+                                    ...shopData, 
+                                    login_config: {
+                                        ...shopData.login_config, 
+                                        box_style: {...shopData.login_config.box_style, height: parseInt(e.target.value)}
+                                    }
+                                })}
+                                className="w-full accent-blue-500 h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer"
+                            />
+                        </div>
+
+                        {/* 🟢 ส่วนปรับความมนของมุม */}
+                        <div className="space-y-3">
+                            <div className="flex justify-between">
+                                <label className="text-xs font-black text-slate-400 uppercase">ความมน</label>
+                                <span className="text-xs font-bold text-emerald-600">{shopData.login_config.box_style.border_radius ?? 24}px</span>
+                            </div>
+                            <input 
+                                type="range" min="0" max="50" step="2"
+                                value={shopData.login_config.box_style.border_radius ?? 24}
+                                onChange={(e) => setShopData({
+                                    ...shopData, 
+                                    login_config: {
+                                        ...shopData.login_config, 
+                                        box_style: {...shopData.login_config.box_style, border_radius: parseInt(e.target.value)}
+                                    }
+                                })}
+                                className="w-full accent-emerald-500 h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer"
+                            />
+                        </div>
 
                     </section>
                 </div>
@@ -359,14 +430,18 @@ export default function ManageShopTheme() {
                                 onDrag={handleDrag}
                                 onStop={handleDragStop}
                             >
-                                {/* 🟢 ลบ position: absolute และ translate จาก Style เพื่อให้ Draggable ทำงาน 100% */}
                                 <div 
                                     ref={draggableNodeRef}
-                                    className={`absolute z-10 p-8 w-64 cursor-move select-none transition-shadow
+                                    className={`absolute z-10 p-8 cursor-move select-none transition-shadow
                                         ${shopData.login_config.box_style.is_glassmorphism 
                                             ? 'bg-white/10 backdrop-blur-2xl border-white/20' 
                                             : 'bg-slate-900 border-slate-700'} 
-                                        border shadow-2xl rounded-4xl flex flex-col items-center space-y-5`}
+                                        border shadow-2xl rounded-4xl flex flex-col items-center space-y-5 overflow-hidden`}
+                                        style={{ 
+                                            width: `${shopData.login_config.box_style.width ?? 400}px`,
+                                            height: `${shopData.login_config.box_style.height ?? 400}px`,
+                                            borderRadius: `${shopData.login_config.box_style.border_radius ?? 24}px`
+                                        }}
                                 >
                                     <div className="w-16 h-16 bg-white/5 rounded-2xl border border-white/10 flex items-center justify-center">
                                         <Move size={24} className="text-white/20 animate-pulse" />

@@ -105,12 +105,15 @@ export default function Login() {
             : 'bg-slate-900 border-slate-700'} 
           border rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)]`}
         style={{ 
-          position: 'absolute',
-          left: `${config.box_position?.x ?? 50}%`,
-          top: `${config.box_position?.y ?? 50}%`,
-          transform: 'translate(-50%, -50%)',
-          borderColor: config.box_style?.border_color || '#ffd700',
-          margin: 0 // 🟢 บังคับไม่ให้มี margin มาดันกล่องจนเบี้ยว
+            position: 'absolute',
+            left: `${config.box_position?.x ?? 50}%`,
+            top: `${config.box_position?.y ?? 50}%`,
+            transform: 'translate(-50%, -50%)',
+            maxWidth: `${config.box_style?.width || 400}px`,
+            maxHeight: `${config.box_style?.height || 400}px`,
+            borderRadius: `${config.box_style?.border_radius || 24}px`,
+            borderColor: config.box_style?.border_color || '#ffd700',
+            margin: 0 
         }}
       >
         <div className="flex flex-col items-center mb-8">
