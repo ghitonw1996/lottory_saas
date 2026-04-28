@@ -483,7 +483,7 @@ export default function ManageShopTheme() {
                                             <div className="w-4 h-4 rounded-full bg-slate-500"></div>
                                             <div className="ml-3 h-2 w-24 bg-slate-500 rounded-full"></div>
                                         </div>
-                                        <div className="h-12 w-full bg-gradient-to-r from-yellow-600 to-yellow-400 rounded-xl mt-6 flex items-center justify-center shadow-lg">
+                                        <div className="h-12 w-full bg-linear-to-r from-yellow-600 to-yellow-400 rounded-xl mt-6 flex items-center justify-center shadow-lg">
                                             <span className="text-xs font-bold text-black">LOGIN ACCESS</span>
                                         </div>
                                     </div>
