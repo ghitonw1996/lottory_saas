@@ -275,7 +275,7 @@ export default function Login() {
                             rel="noreferrer" 
                             className="flex items-center gap-2 text-xs text-green-400 hover:text-green-300 transition-colors bg-green-900/40 px-5 py-2.5 rounded-full border border-green-500/30 backdrop-blur-md shadow-lg"
                         >
-                            <MessageCircle size={14} /> ติดต่อแอดมิน
+                            <MessageCircle size={14} /> สมัครผ่านแอดมิน
                         </a>
                     )}
                 </div>

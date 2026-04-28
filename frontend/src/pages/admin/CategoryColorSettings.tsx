@@ -18,7 +18,7 @@ export default function CategoryColorSettings() {
   const fetchCategories = async () => {
     setLoading(true);
     try {
-        const res = await client.get('/play/categories/');
+        const res = await client.get('/play/categories');
         setCategories(res.data);
     } catch (err) {
         console.error("Fetch categories error:", err);

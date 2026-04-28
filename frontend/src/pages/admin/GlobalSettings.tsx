@@ -98,7 +98,7 @@ export default function GlobalSettings() {
                     </div>
                     <div>
                         <h1 className="text-2xl font-black text-slate-800 tracking-tight">Global Settings</h1>
-                        <p className="text-slate-500 text-sm">ตั้งค่าระบบทั่วไป อัตลักษณ์แบรนด์ และการเชื่อมต่อ</p>
+                        <p className="text-slate-500 text-sm">ตั้งค่าระบบ</p>
                     </div>
                 </div>
                 <button 
@@ -205,7 +205,7 @@ export default function GlobalSettings() {
 
                         <div className="space-y-2 mt-4 pt-4 border-t border-slate-100">
                             <label className="text-xs font-black text-slate-400 uppercase tracking-widest">
-                                ไอดีไลน์สำหรับติดต่อ (Line OA ID)
+                                ไอดีไลน์สำหรับติดต่อ
                             </label>
                             <p className="text-[14px] text-slate-500 mb-2">ใส่ ID (มี @) หรือลิงก์ (https://lin.ee/...) เพื่อให้ผู้เล่นกดติดต่อจากหน้า Login</p>
                             <input 
