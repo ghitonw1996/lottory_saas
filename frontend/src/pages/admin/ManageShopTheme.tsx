@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import Draggable from 'react-draggable';
 import client from '../../api/client';
 import { 
-    Palette, Loader2, Globe, 
+    Palette, Loader2,
     Image as ImageIcon, CheckCircle2,
     Move, Maximize, MousePointer2, Upload, X, Camera,
     ChevronUp, ChevronDown, Square, Layers, Droplets

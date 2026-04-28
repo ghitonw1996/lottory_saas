@@ -5,7 +5,7 @@ import { loginApi, registerApi } from '../api/auth';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { 
-    Loader2, User, Lock, Eye, EyeOff, ShieldCheck, Crown, UserPlus, MessageCircle
+    Loader2, User, Lock, Eye, EyeOff, ShieldCheck, Crown, MessageCircle
 } from 'lucide-react';
 
 export default function Login() {
