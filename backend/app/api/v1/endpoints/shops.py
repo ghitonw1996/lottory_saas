@@ -30,7 +30,8 @@ def get_shop_config(subdomain: str, db: Session = Depends(get_db)):
         "name": shop.name,
         "logo_url": shop.logo_url,
         "theme_color": shop.theme_color,
-        "login_config": shop.login_config
+        "login_config": shop.login_config,
+        "line_id": shop.line_id
     }
 
 # [เพิ่มใหม่] API สำหรับ Admin ร้านค้า แก้ไขตั้งค่า LINE ของตัวเอง
@@ -52,7 +53,9 @@ def update_shop_config(
     if not shop:
         raise HTTPException(status_code=404, detail="Shop not found")
     
-    # ✅ [เพิ่ม] อัปเดตข้อมูล Branding
+    if config_in.name is not None:
+        shop.name = config_in.name
+
     if config_in.logo_url is not None:
         shop.logo_url = config_in.logo_url
     
@@ -65,6 +68,9 @@ def update_shop_config(
         
     if config_in.line_target_id is not None:
         shop.line_target_id = config_in.line_target_id
+
+    if config_in.line_id is not None: 
+        shop.line_id = config_in.line_id
 
     if config_in.login_config is not None:
         shop.login_config = config_in.login_config

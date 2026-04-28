@@ -18,17 +18,25 @@ class Shop(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     line_channel_token = Column(String, nullable=True)
     line_target_id = Column(String, nullable=True)
+    line_id = Column(String, nullable=True)
     login_config = Column(JSONB, default={
         "background_url": "",
         "background_overlay": 0.3,
-        "box_position": {"x": 50, "y": 50}, # กลางหน้าจอ (หน่วย %)
+        "box_position": {"x": 50, "y": 50}, 
         "box_style": {
             "is_glassmorphism": True,
-            "border_color": "#ffd700",
+            "width": 40,
+            "height": 50,
+            "border_radius": 24,
             "border_width": 2,
-            "width": 400,
-            "height": 400,
-            "border_radius": 24
+            "border_color": "#ffd700",
+            "shadow_x": 0,
+            "shadow_y": 20,
+            "shadow_blur": 50,
+            "shadow_color": "#00000080",
+            "box_bg_opacity": 0.1,
+            "box_bg_blur": 20,
+            "box_background_url": ""
         },
         "logo_size": 120,
         "font_family": "Kanit"

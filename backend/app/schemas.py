@@ -30,6 +30,7 @@ class ShopResponse(ShopBase):
     created_at: datetime
     line_channel_token: Optional[str] = None
     line_target_id: Optional[str] = None
+    line_id: Optional[str] = None
     theme_color: Optional[str] = "#2563EB"
     login_config: Optional[Dict[str, Any]] = None
     class Config:
@@ -37,8 +38,10 @@ class ShopResponse(ShopBase):
 
 # 2. [เพิ่มใหม่] Schema สำหรับรับค่าแก้ไขการตั้งค่า
 class ShopConfigUpdate(BaseModel):
+    name: Optional[str] = None
     line_channel_token: Optional[str] = None
     line_target_id: Optional[str] = None
+    line_id: Optional[str] = None
     login_config: Optional[Dict[str, Any]] = None
     logo_url: Optional[str] = None       
     theme_color: Optional[str] = None

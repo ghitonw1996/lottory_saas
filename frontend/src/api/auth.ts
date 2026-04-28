@@ -20,3 +20,12 @@ export const fetchMeApi = async () => {
   const response = await client.get('/users/me');
   return response.data;
 };
+
+/**
+ * ฟังก์ชันสำหรับสมัครสมาชิก
+ * @param data ข้อมูลที่ต้องส่ง (username, password, shop_id)
+ */
+export const registerApi = async (data: { username: string; password: string; shop_id: string }) => {
+  const response = await client.post('/auth/register', data);
+  return response.data;
+};

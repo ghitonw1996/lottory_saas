@@ -7,13 +7,15 @@ import ManageLottos from './ManageLottos';
 import ManageRates from './ManageRates'; 
 import ManageRisks from './ManageRisks';
 import DailyReport from './DailyReport';
-import CategoryColorSettings from './CategoryColorSettings'; 
+import CategoryColorSettings from './CategoryColorSettings';
+import GlobalSettings from './GlobalSettings';
 
 export default function LottoManagement() {
   const [activeTab, setActiveTab] = useState('members');
 
   const tabs = [
     { id: 'members', label: 'สมาชิก', icon: Users },
+    { id: 'Global', label: 'ตั้งค่าหลัก', icon: Store },
     { id: 'category-colors', label: 'สีหมวดหมู่', icon: Palette },
     { id: 'rates', label: 'เรทจ่าย', icon: FileSpreadsheet },
     { id: 'lottos', label: 'ตั้งค่าหวย', icon: Settings },
@@ -71,6 +73,12 @@ export default function LottoManagement() {
             {activeTab === 'members' && (
                 <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
                     <ManageMembers />
+                </div>
+            )}
+
+            {activeTab === 'Global' && (
+                <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    <GlobalSettings />
                 </div>
             )}
 
