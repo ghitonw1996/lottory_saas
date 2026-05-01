@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import Draggable from 'react-draggable';
 import client from '../../api/client';
 import { 
-    Palette, Loader2,
+    Palette, Loader2, Monitor, Tablet, Smartphone,
     Image as ImageIcon, CheckCircle2,
     Move, Maximize, MousePointer2, Upload, X, Camera,
     ChevronUp, ChevronDown, Square, Layers, Droplets
@@ -12,6 +12,7 @@ import toast from 'react-hot-toast';
 export default function ManageShopTheme() {
     const [loading, setLoading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
+    const [viewMode, setViewMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
     
     // States สำหรับ Loading รูปภาพ
     const [uploadingBg, setUploadingBg] = useState(false);
@@ -108,7 +109,8 @@ export default function ManageShopTheme() {
         }, 50); 
         return () => clearTimeout(timer);
     }, [
-        loading, 
+        loading,
+        viewMode,
         shopData.login_config.box_style.width, 
         shopData.login_config.box_style.height,
         shopData.login_config.box_position.x,
@@ -222,9 +224,95 @@ export default function ManageShopTheme() {
         </div>
     );
 
+    // 🟢 สร้างฟังก์ชันเก็บเนื้อหาหน้าจอ เพื่อนำไปเรียกใช้ 3 โหมด (จะได้ไม่ต้องเขียนโค้ดซ้ำ)
+    const renderVirtualScreen = () => (
+        <>
+            {/* Simulator Header */}
+            <div className="p-3 md:p-4 border-b border-white/5 flex justify-between items-center bg-black/20 backdrop-blur-md z-20 shrink-0">
+                <div className="flex items-center gap-2">
+                    <div className="flex gap-1.5">
+                        <div className="w-2.5 h-2.5 rounded-full bg-red-500/50" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/50" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-green-500/50" />
+                    </div>
+                    <span className="text-[10px] font-bold text-white/40 uppercase ml-2 tracking-widest hidden sm:block">
+                        Live Preview ({viewMode})
+                    </span>
+                </div>
+                <div className="px-3 py-1 bg-blue-500/20 rounded-full border border-blue-500/30">
+                    <span className="text-[10px] font-mono text-blue-400">X: {position.x}% Y: {position.y}%</span>
+                </div>
+            </div>
+
+            {/* Simulation Canvas */}
+            <div 
+                ref={previewRef}
+                className="relative flex-1 w-full bg-slate-950 bg-cover bg-center transition-all duration-700 overflow-hidden"
+                style={{ backgroundImage: `url(${shopData.login_config.background_url || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200'})` }}
+            >
+                <div 
+                    className="absolute inset-0 pointer-events-none transition-all duration-500"
+                    style={{ backgroundColor: `rgba(0,0,0, ${shopData.login_config.background_overlay})` }}
+                />
+
+                <Draggable 
+                    nodeRef={draggableNodeRef}
+                    bounds="parent"
+                    position={dragPos}
+                    onDrag={handleDrag}
+                    onStop={handleDragStop}
+                >
+                    <div 
+                        ref={draggableNodeRef}
+                        className="absolute z-10 cursor-move select-none flex flex-col justify-center overflow-hidden transition-all duration-300 ease-out"
+                        style={{ 
+                            width: `${style.width ?? 40}%`,
+                            minHeight: `${style.height ?? 50}%`,
+                            borderRadius: `${style.border_radius ?? 24}px`,
+                            borderWidth: `${style.border_width ?? 2}px`,
+                            borderColor: style.border_color ?? '#ffd700',
+                            boxShadow: `${style.shadow_x ?? 0}px ${style.shadow_y ?? 20}px ${style.shadow_blur ?? 50}px ${style.shadow_color ?? 'rgba(0,0,0,0.5)'}`,
+                            backgroundColor: style.is_glassmorphism 
+                                ? `rgba(255, 255, 255, ${style.box_bg_opacity ?? 0.1})` 
+                                : (style.box_background_url ? 'transparent' : '#0f172a'),
+                            backgroundImage: style.box_background_url ? `url(${style.box_background_url})` : 'none',
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            backdropFilter: style.is_glassmorphism ? `blur(${style.box_bg_blur ?? 20}px)` : 'none',
+                            WebkitBackdropFilter: style.is_glassmorphism ? `blur(${style.box_bg_blur ?? 20}px)` : 'none',
+                        }}
+                    >
+                        <div className="absolute top-2 right-2 md:top-4 md:right-4 text-white/30 animate-pulse pointer-events-none z-20">
+                            <Move size={16} className="md:w-5 md:h-5" />
+                        </div>
+                        <div className="w-full px-4 md:px-6 space-y-2 md:space-y-4 pointer-events-none opacity-80 z-10">
+                            <div className="h-8 md:h-12 w-full bg-black/40 border border-white/10 rounded-lg md:rounded-xl flex items-center px-3 md:px-4">
+                                <div className="w-3 h-3 md:w-4 md:h-4 rounded-full bg-slate-500"></div>
+                                <div className="ml-2 md:ml-3 h-1.5 md:h-2 w-24 md:w-32 bg-slate-500 rounded-full"></div>
+                            </div>
+                            <div className="h-8 md:h-12 w-full bg-black/40 border border-white/10 rounded-lg md:rounded-xl flex items-center px-3 md:px-4">
+                                <div className="w-3 h-3 md:w-4 md:h-4 rounded-full bg-slate-500"></div>
+                                <div className="ml-2 md:ml-3 h-1.5 md:h-2 w-16 md:w-24 bg-slate-500 rounded-full"></div>
+                            </div>
+                            <div className="h-8 md:h-12 w-full bg-linear-to-r from-yellow-600 to-yellow-400 rounded-lg md:rounded-xl mt-4 md:mt-6 flex items-center justify-center shadow-lg">
+                                <span className="text-[10px] md:text-xs font-bold text-black">LOGIN</span>
+                            </div>
+                        </div>
+                    </div>
+                </Draggable>
+
+                <div className="absolute bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 bg-white/5 backdrop-blur-md border border-white/10 text-white/60 px-4 md:px-6 py-1.5 md:py-2 rounded-full text-[8px] md:text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 pointer-events-none whitespace-nowrap">
+                    <MousePointer2 size={12} className="text-blue-400" /> ลากกล่องเพื่อจัดวาง
+                </div>
+            </div>
+        </>
+    );
+
     return (
-        <div className="pb-20 max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 font-sans">
+        // ปรับ max-w-6xl เป็น 7xl หรือเต็มจอขึ้นเพื่อให้มีพื้นที่ Preview กว้างๆ
+        <div className="pb-20 max-w-7xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 font-sans">
             
+            {/* --- 1. Header --- */}
             <div className="flex items-center justify-between bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
                 <div className="flex items-center gap-4">
                     <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl">
@@ -232,7 +320,7 @@ export default function ManageShopTheme() {
                     </div>
                     <div>
                         <h1 className="text-2xl font-black text-slate-800 tracking-tight">Design Studio</h1>
-                        <p className="text-slate-500 text-sm">ปรับแต่งอัตลักษณ์และหน้าแรกของร้านค้าคุณ</p>
+                        <p className="text-slate-500 text-sm">ปรับแต่งร้านของคุณ</p>
                     </div>
                 </div>
                 <button 
@@ -245,257 +333,241 @@ export default function ManageShopTheme() {
                 </button>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                {/* 🟢 Left Controls (Accordion) */}
-                <div className="lg:col-span-4 space-y-4">
-                    
-                    {/* 1. Page Background */}
-                    <section className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
-                        <button onClick={() => toggleSection('bg')} className="flex items-center justify-between w-full mb-2 outline-none">
-                            <h3 className="font-bold text-slate-800 flex items-center gap-2">
-                                <ImageIcon size={18} className="text-indigo-500" /> พื้นหลังหน้าเว็บ
-                            </h3>
-                            {openSection === 'bg' ? <ChevronUp size={16}/> : <ChevronDown size={16}/>}
-                        </button>
-                        
-                        {openSection === 'bg' && (
-                            <div className="space-y-4 pt-2 animate-in fade-in slide-in-from-top-2">
-                                <div className="relative h-32 bg-slate-900 rounded-xl overflow-hidden border">
-                                    {shopData.login_config.background_url && <img src={shopData.login_config.background_url} className="w-full h-full object-cover opacity-50"/>}
-                                    <div className="absolute inset-0 flex flex-col items-center justify-center text-white pointer-events-none hover:bg-black/20 transition-colors">
-                                        {uploadingBg ? <Loader2 className="animate-spin"/> : <Camera size={24}/>}
-                                        <span className="text-[10px] font-bold mt-1 uppercase">เปลี่ยนพื้นหลัง</span>
-                                    </div>
-                                    <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0], 'background')}/>
+            {/* --- 2. Viewport Switcher (แถบเลือกโหมดหน้าจอ) --- */}
+            <div className="flex justify-center">
+                <div className="flex items-center bg-white p-1.5 rounded-2xl shadow-sm border border-slate-200 gap-1">
+                    <button 
+                        onClick={() => setViewMode('desktop')} 
+                        className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 ${viewMode === 'desktop' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-50 hover:text-indigo-600'}`}
+                    >
+                        <Monitor size={18} /> จอคอม
+                    </button>
+                    <button 
+                        onClick={() => setViewMode('tablet')} 
+                        className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 ${viewMode === 'tablet' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-50 hover:text-indigo-600'}`}
+                    >
+                        <Tablet size={18} /> แท็บเล็ต
+                    </button>
+                    <button 
+                        onClick={() => setViewMode('mobile')} 
+                        className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 ${viewMode === 'mobile' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-50 hover:text-indigo-600'}`}
+                    >
+                        <Smartphone size={18} /> มือถือ
+                    </button>
+                </div>
+            </div>
+
+            <div className="bg-slate-100 rounded-[3rem] p-4 md:p-8 overflow-x-auto shadow-inner border border-slate-200 custom-scrollbar">
+                
+                {/* 🟢 Wrapper ช่วยให้จัดกึ่งกลางได้ แต่ถ้ากล่องใหญ่กว่าจอจะไม่โดนตัดขอบซ้าย */}
+                <div className="min-w-fit flex justify-center">
+
+                    {/* 🟢 Container จำลองขนาดหน้าจอ แยกเป็น 3 โหมดอิสระ */}
+                
+                    {/* 💻 โหมดจอคอม (Desktop) */}
+                    {viewMode === 'desktop' && (
+                        <div 
+                            className="bg-slate-900 rounded-[2.5rem] border-[12px] border-slate-800 shadow-2xl overflow-hidden flex flex-col relative w-full animate-in zoom-in-95 duration-300"
+                            style={{ 
+                                aspectRatio: '16/9',   // 🔴 คุณสามารถแก้สัดส่วนของจอคอมได้ที่นี่
+                                maxWidth: '1024px',    // 🔴 ปรับความกว้างสุดของจอคอม
+                            }}
+                        >
+                            {renderVirtualScreen()}
+                        </div>
+                    )}
+
+                    {/* 📱 โหมดแท็บเล็ต (Tablet) */}
+                    {viewMode === 'tablet' && (
+                        <div 
+                            className="bg-slate-900 rounded-[2rem] border-[10px] border-slate-800 shadow-2xl overflow-hidden flex flex-col relative w-full animate-in zoom-in-95 duration-300"
+                            style={{ 
+                                aspectRatio: '3/4',    // 🔴 คุณสามารถแก้สัดส่วนของแท็บเล็ตได้ที่นี่
+                                maxWidth: '768px',     // 🔴 ปรับความกว้างสุดของแท็บเล็ต
+                            }}
+                        >
+                            {renderVirtualScreen()}
+                        </div>
+                    )}
+
+                    {/* 📱 โหมดมือถือ (Mobile) */}
+                    {viewMode === 'mobile' && (
+                        <div 
+                            className="bg-slate-900 rounded-[1.5rem] border-8 border-slate-800 shadow-2xl overflow-hidden flex flex-col relative w-full animate-in zoom-in-95 duration-300"
+                            style={{ 
+                                aspectRatio: '9/16',   // 🔴 คุณสามารถแก้สัดส่วนของมือถือได้ที่นี่
+                                maxWidth: '400px',     // 🔴 ปรับความกว้างสุดของมือถือ
+                            }}
+                        >
+                            {renderVirtualScreen()}
+                        </div>
+                    )}
+
+                </div>
+            </div>
+
+            {/* --- 4. Controls Area (ย้ายลงมาด้านล่าง จัดเป็น Grid 3 คอลัมน์) --- */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
+                
+                {/* 1. Page Background */}
+                <section className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 h-fit">
+                    <button onClick={() => toggleSection('bg')} className="flex items-center justify-between w-full mb-2 outline-none">
+                        <h3 className="font-bold text-slate-800 flex items-center gap-2">
+                            <ImageIcon size={18} className="text-indigo-500" /> พื้นหลังหน้าเว็บ
+                        </h3>
+                        {openSection === 'bg' ? <ChevronUp size={16}/> : <ChevronDown size={16}/>}
+                    </button>
+                    {openSection === 'bg' && (
+                        <div className="space-y-4 pt-2 animate-in fade-in slide-in-from-top-2">
+                            <div className="relative h-32 bg-slate-900 rounded-xl overflow-hidden border">
+                                {shopData.login_config.background_url && <img src={shopData.login_config.background_url} className="w-full h-full object-cover opacity-50"/>}
+                                <div className="absolute inset-0 flex flex-col items-center justify-center text-white pointer-events-none hover:bg-black/20 transition-colors">
+                                    {uploadingBg ? <Loader2 className="animate-spin"/> : <Camera size={24}/>}
+                                    <span className="text-[10px] font-bold mt-1 uppercase">เปลี่ยนพื้นหลัง</span>
+                                </div>
+                                <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0], 'background')}/>
+                            </div>
+                            <div className="space-y-2">
+                                <div className="flex justify-between text-xs font-bold text-slate-400 uppercase"><span>Overlay</span><span>{Math.round(shopData.login_config.background_overlay * 100)}%</span></div>
+                                <input type="range" min="0" max="1" step="0.05" value={shopData.login_config.background_overlay} onChange={(e) => setShopData({...shopData, login_config: {...shopData.login_config, background_overlay: parseFloat(e.target.value)}})} className="w-full h-1.5 bg-slate-100 rounded-lg accent-indigo-500 appearance-none cursor-pointer"/>
+                            </div>
+                        </div>
+                    )}
+                </section>
+
+                {/* 2. Size & Position */}
+                <section className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 h-fit">
+                    <button onClick={() => toggleSection('size')} className="flex items-center justify-between w-full mb-2 outline-none">
+                        <h3 className="font-bold text-slate-800 flex items-center gap-2">
+                            <Maximize size={18} className="text-blue-500" /> ขนาดและตำแหน่ง
+                        </h3>
+                        {openSection === 'size' ? <ChevronUp size={16}/> : <ChevronDown size={16}/>}
+                    </button>
+                    {openSection === 'size' && (
+                        <div className="space-y-4 pt-2 animate-in fade-in slide-in-from-top-2">
+                            <div className="space-y-2">
+                                <div className="flex justify-between text-xs font-bold text-slate-400 uppercase"><span>กว้าง (Width)</span><span>{style.width ?? 40}%</span></div>
+                                <input type="range" min="10" max="100" value={style.width ?? 40} onChange={(e) => updateBoxStyle('width', parseInt(e.target.value))} className="w-full h-1.5 bg-slate-100 rounded-lg accent-blue-500 appearance-none cursor-pointer"/>
+                            </div>
+                            <div className="space-y-2">
+                                <div className="flex justify-between text-xs font-bold text-slate-400 uppercase"><span>สูง (Height)</span><span>{style.height ?? 50}%</span></div>
+                                <input type="range" min="10" max="100" value={style.height ?? 50} onChange={(e) => updateBoxStyle('height', parseInt(e.target.value))} className="w-full h-1.5 bg-slate-100 rounded-lg accent-blue-500 appearance-none cursor-pointer"/>
+                            </div>
+                            <div className="pt-4 mt-2 border-t border-slate-100 space-y-4">
+                                <div className="space-y-2">
+                                    <div className="flex justify-between text-xs font-bold text-slate-400 uppercase text-blue-600"><span>ตำแหน่งแนวนอน (แกน X)</span><span>{position.x}%</span></div>
+                                    <input type="range" min="0" max="100" value={position.x} onChange={(e) => updateBoxPosition('x', parseInt(e.target.value))} className="w-full h-1.5 bg-blue-100 rounded-lg accent-blue-600 appearance-none cursor-pointer"/>
                                 </div>
                                 <div className="space-y-2">
-                                    <div className="flex justify-between text-xs font-bold text-slate-400 uppercase"><span>Overlay</span><span>{Math.round(shopData.login_config.background_overlay * 100)}%</span></div>
-                                    <input type="range" min="0" max="1" step="0.05" value={shopData.login_config.background_overlay} onChange={(e) => setShopData({...shopData, login_config: {...shopData.login_config, background_overlay: parseFloat(e.target.value)}})} className="w-full h-1.5 bg-slate-100 rounded-lg accent-indigo-500 appearance-none cursor-pointer"/>
+                                    <div className="flex justify-between text-xs font-bold text-slate-400 uppercase text-blue-600"><span>ตำแหน่งแนวตั้ง (แกน Y)</span><span>{position.y}%</span></div>
+                                    <input type="range" min="0" max="100" value={position.y} onChange={(e) => updateBoxPosition('y', parseInt(e.target.value))} className="w-full h-1.5 bg-blue-100 rounded-lg accent-blue-600 appearance-none cursor-pointer"/>
                                 </div>
                             </div>
-                        )}
-                    </section>
+                        </div>
+                    )}
+                </section>
 
-                    {/* 2. Size & Position */}
-                    <section className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
-                        <button onClick={() => toggleSection('size')} className="flex items-center justify-between w-full mb-2 outline-none">
-                            <h3 className="font-bold text-slate-800 flex items-center gap-2">
-                                <Maximize size={18} className="text-blue-500" /> ขนาดและตำแหน่ง
-                            </h3>
-                            {openSection === 'size' ? <ChevronUp size={16}/> : <ChevronDown size={16}/>}
-                        </button>
-                        {openSection === 'size' && (
-                            <div className="space-y-4 pt-2 animate-in fade-in slide-in-from-top-2">
-                                <div className="space-y-2">
-                                    <div className="flex justify-between text-xs font-bold text-slate-400 uppercase"><span>กว้าง (Width)</span><span>{style.width ?? 40}%</span></div>
-                                    <input type="range" min="10" max="100" value={style.width ?? 40} onChange={(e) => updateBoxStyle('width', parseInt(e.target.value))} className="w-full h-1.5 bg-slate-100 rounded-lg accent-blue-500 appearance-none cursor-pointer"/>
+                {/* 3. Borders & Shape */}
+                <section className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 h-fit">
+                    <button onClick={() => toggleSection('border')} className="flex items-center justify-between w-full mb-2 outline-none">
+                        <h3 className="font-bold text-slate-800 flex items-center gap-2">
+                            <Square size={18} className="text-emerald-500" /> ขอบและรูปทรง
+                        </h3>
+                        {openSection === 'border' ? <ChevronUp size={16}/> : <ChevronDown size={16}/>}
+                    </button>
+                    {openSection === 'border' && (
+                        <div className="space-y-4 pt-2 animate-in fade-in slide-in-from-top-2">
+                            <div className="space-y-2">
+                                <div className="flex justify-between text-xs font-bold text-slate-400 uppercase"><span>ความมน (Radius)</span><span>{style.border_radius ?? 24}px</span></div>
+                                <input type="range" min="0" max="100" value={style.border_radius ?? 24} onChange={(e) => updateBoxStyle('border_radius', parseInt(e.target.value))} className="w-full h-1.5 bg-slate-100 rounded-lg accent-emerald-500 appearance-none cursor-pointer"/>
+                            </div>
+                            <div className="flex gap-4 items-center">
+                                <div className="flex-1 space-y-2">
+                                    <label className="text-[10px] font-bold text-slate-400 uppercase">ขนาดขอบ (px)</label>
+                                    <input type="number" value={style.border_width ?? 2} onChange={(e) => updateBoxStyle('border_width', parseInt(e.target.value))} className="w-full bg-slate-50 border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-emerald-400"/>
                                 </div>
                                 <div className="space-y-2">
-                                    <div className="flex justify-between text-xs font-bold text-slate-400 uppercase"><span>สูง (Height)</span><span>{style.height ?? 50}%</span></div>
-                                    <input type="range" min="10" max="100" value={style.height ?? 50} onChange={(e) => updateBoxStyle('height', parseInt(e.target.value))} className="w-full h-1.5 bg-slate-100 rounded-lg accent-blue-500 appearance-none cursor-pointer"/>
-                                </div>
-                                <div className="pt-4 mt-2 border-t border-slate-100 space-y-4">
-                                    <div className="space-y-2">
-                                        <div className="flex justify-between text-xs font-bold text-slate-400 uppercase text-blue-600"><span>ตำแหน่งแนวนอน (แกน X)</span><span>{position.x}%</span></div>
-                                        <input type="range" min="0" max="100" value={position.x} onChange={(e) => updateBoxPosition('x', parseInt(e.target.value))} className="w-full h-1.5 bg-blue-100 rounded-lg accent-blue-600 appearance-none cursor-pointer"/>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <div className="flex justify-between text-xs font-bold text-slate-400 uppercase text-blue-600"><span>ตำแหน่งแนวตั้ง (แกน Y)</span><span>{position.y}%</span></div>
-                                        <input type="range" min="0" max="100" value={position.y} onChange={(e) => updateBoxPosition('y', parseInt(e.target.value))} className="w-full h-1.5 bg-blue-100 rounded-lg accent-blue-600 appearance-none cursor-pointer"/>
-                                    </div>
+                                    <label className="text-[10px] font-bold text-slate-400 uppercase">สีขอบ</label>
+                                    <input type="color" value={style.border_color ?? '#ffd700'} onChange={(e) => updateBoxStyle('border_color', e.target.value)} className="w-10 h-10 block bg-transparent border-none cursor-pointer p-0"/>
                                 </div>
                             </div>
-                        )}
-                    </section>
+                        </div>
+                    )}
+                </section>
 
-                    {/* 3. Borders & Shape */}
-                    <section className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
-                        <button onClick={() => toggleSection('border')} className="flex items-center justify-between w-full mb-2 outline-none">
-                            <h3 className="font-bold text-slate-800 flex items-center gap-2">
-                                <Square size={18} className="text-emerald-500" /> ขอบและรูปทรง
-                            </h3>
-                            {openSection === 'border' ? <ChevronUp size={16}/> : <ChevronDown size={16}/>}
-                        </button>
-                        {openSection === 'border' && (
-                            <div className="space-y-4 pt-2 animate-in fade-in slide-in-from-top-2">
-                                <div className="space-y-2">
-                                    <div className="flex justify-between text-xs font-bold text-slate-400 uppercase"><span>ความมน (Radius)</span><span>{style.border_radius ?? 24}px</span></div>
-                                    <input type="range" min="0" max="100" value={style.border_radius ?? 24} onChange={(e) => updateBoxStyle('border_radius', parseInt(e.target.value))} className="w-full h-1.5 bg-slate-100 rounded-lg accent-emerald-500 appearance-none cursor-pointer"/>
+                {/* 4. Shadow Settings */}
+                <section className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 h-fit">
+                    <button onClick={() => toggleSection('shadow')} className="flex items-center justify-between w-full mb-2 outline-none">
+                        <h3 className="font-bold text-slate-800 flex items-center gap-2">
+                            <Layers size={18} className="text-orange-500" /> เงา (Shadow)
+                        </h3>
+                        {openSection === 'shadow' ? <ChevronUp size={16}/> : <ChevronDown size={16}/>}
+                    </button>
+                    {openSection === 'shadow' && (
+                        <div className="space-y-4 pt-2 animate-in fade-in slide-in-from-top-2">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">แกน X (px)</label>
+                                    <input type="number" value={style.shadow_x ?? 0} onChange={(e) => updateBoxStyle('shadow_x', parseInt(e.target.value))} className="w-full bg-slate-50 border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-orange-400"/>
                                 </div>
-                                <div className="flex gap-4 items-center">
-                                    <div className="flex-1 space-y-2">
-                                        <label className="text-[10px] font-bold text-slate-400 uppercase">ขนาดขอบ (px)</label>
-                                        <input type="number" value={style.border_width ?? 2} onChange={(e) => updateBoxStyle('border_width', parseInt(e.target.value))} className="w-full bg-slate-50 border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-emerald-400"/>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-bold text-slate-400 uppercase">สีขอบ</label>
-                                        <input type="color" value={style.border_color ?? '#ffd700'} onChange={(e) => updateBoxStyle('border_color', e.target.value)} className="w-10 h-10 block bg-transparent border-none cursor-pointer p-0"/>
-                                    </div>
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">แกน Y (px)</label>
+                                    <input type="number" value={style.shadow_y ?? 20} onChange={(e) => updateBoxStyle('shadow_y', parseInt(e.target.value))} className="w-full bg-slate-50 border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-orange-400"/>
                                 </div>
                             </div>
-                        )}
-                    </section>
-
-                    {/* 4. Shadow Settings */}
-                    <section className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
-                        <button onClick={() => toggleSection('shadow')} className="flex items-center justify-between w-full mb-2 outline-none">
-                            <h3 className="font-bold text-slate-800 flex items-center gap-2">
-                                <Layers size={18} className="text-orange-500" /> เงา (Shadow)
-                            </h3>
-                            {openSection === 'shadow' ? <ChevronUp size={16}/> : <ChevronDown size={16}/>}
-                        </button>
-                        {openSection === 'shadow' && (
-                            <div className="space-y-4 pt-2 animate-in fade-in slide-in-from-top-2">
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-1">
-                                        <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">แกน X (px)</label>
-                                        <input type="number" value={style.shadow_x ?? 0} onChange={(e) => updateBoxStyle('shadow_x', parseInt(e.target.value))} className="w-full bg-slate-50 border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-orange-400"/>
-                                    </div>
-                                    <div className="space-y-1">
-                                        <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">แกน Y (px)</label>
-                                        <input type="number" value={style.shadow_y ?? 20} onChange={(e) => updateBoxStyle('shadow_y', parseInt(e.target.value))} className="w-full bg-slate-50 border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-orange-400"/>
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <div className="flex justify-between text-xs font-bold text-slate-400 uppercase"><span>ความฟุ้ง (Blur)</span><span>{style.shadow_blur ?? 50}px</span></div>
-                                    <input type="range" min="0" max="100" value={style.shadow_blur ?? 50} onChange={(e) => updateBoxStyle('shadow_blur', parseInt(e.target.value))} className="w-full h-1.5 bg-slate-100 rounded-lg accent-orange-500 appearance-none cursor-pointer"/>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                     <label className="text-xs font-bold text-slate-400 uppercase">สีเงา</label>
-                                     {/* Note: บาง Browser input type="color" ไม่รับ rgba เราอาจจะใช้ hex แบบย่อ */}
-                                     <input type="color" value={(style.shadow_color || '#000000').slice(0, 7)} onChange={(e) => updateBoxStyle('shadow_color', e.target.value)} className="w-8 h-8 cursor-pointer border-0 bg-transparent p-0"/>
-                                </div>
+                            <div className="space-y-2">
+                                <div className="flex justify-between text-xs font-bold text-slate-400 uppercase"><span>ความฟุ้ง (Blur)</span><span>{style.shadow_blur ?? 50}px</span></div>
+                                <input type="range" min="0" max="100" value={style.shadow_blur ?? 50} onChange={(e) => updateBoxStyle('shadow_blur', parseInt(e.target.value))} className="w-full h-1.5 bg-slate-100 rounded-lg accent-orange-500 appearance-none cursor-pointer"/>
                             </div>
-                        )}
-                    </section>
+                            <div className="flex items-center justify-between">
+                                 <label className="text-xs font-bold text-slate-400 uppercase">สีเงา</label>
+                                 <input type="color" value={(style.shadow_color || '#000000').slice(0, 7)} onChange={(e) => updateBoxStyle('shadow_color', e.target.value)} className="w-8 h-8 cursor-pointer border-0 bg-transparent p-0"/>
+                            </div>
+                        </div>
+                    )}
+                </section>
 
-                    {/* 5. Effects & Box Style */}
-                    <section className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
-                        <button onClick={() => toggleSection('effects')} className="flex items-center justify-between w-full mb-2 outline-none">
-                            <h3 className="font-bold text-slate-800 flex items-center gap-2">
-                                <Droplets size={18} className="text-cyan-500" /> สไตล์และเอฟเฟกต์
-                            </h3>
-                            {openSection === 'effects' ? <ChevronUp size={16}/> : <ChevronDown size={16}/>}
-                        </button>
-                        {openSection === 'effects' && (
-                            <div className="space-y-4 pt-2 animate-in fade-in slide-in-from-top-2">
+                {/* 5. Effects & Box Style */}
+                <section className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 h-fit lg:col-span-2">
+                    <button onClick={() => toggleSection('effects')} className="flex items-center justify-between w-full mb-2 outline-none">
+                        <h3 className="font-bold text-slate-800 flex items-center gap-2">
+                            <Droplets size={18} className="text-cyan-500" /> สไตล์และเอฟเฟกต์
+                        </h3>
+                        {openSection === 'effects' ? <ChevronUp size={16}/> : <ChevronDown size={16}/>}
+                    </button>
+                    {openSection === 'effects' && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2 animate-in fade-in slide-in-from-top-2">
+                            <div className="space-y-4">
                                 <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
                                     <span className="text-sm font-bold text-slate-700">เอฟเฟกต์กระจก (Glass)</span>
                                     <input type="checkbox" checked={style.is_glassmorphism} onChange={(e) => updateBoxStyle('is_glassmorphism', e.target.checked)} className="w-5 h-5 accent-cyan-600"/>
                                 </div>
-                                
                                 <div className="space-y-2">
                                     <div className="flex justify-between text-xs font-bold text-slate-400 uppercase"><span>ความใสพื้นหลังกล่อง</span><span>{Math.round((style.box_bg_opacity ?? 0.1) * 100)}%</span></div>
                                     <input type="range" min="0" max="1" step="0.01" value={style.box_bg_opacity ?? 0.1} onChange={(e) => updateBoxStyle('box_bg_opacity', parseFloat(e.target.value))} className="w-full h-1.5 bg-slate-100 rounded-lg accent-cyan-500 appearance-none cursor-pointer"/>
                                 </div>
-
                                 <div className="space-y-2">
                                     <div className="flex justify-between text-xs font-bold text-slate-400 uppercase"><span>ความเบลอ (Backdrop Blur)</span><span>{style.box_bg_blur ?? 20}px</span></div>
                                     <input type="range" min="0" max="40" step="1" value={style.box_bg_blur ?? 20} onChange={(e) => updateBoxStyle('box_bg_blur', parseInt(e.target.value))} className="w-full h-1.5 bg-slate-100 rounded-lg accent-cyan-500 appearance-none cursor-pointer"/>
                                 </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">ภาพพื้นหลังกล่อง (เล็ก)</label>
-                                    <div className="relative h-16 bg-slate-50 rounded-xl border border-dashed border-slate-300 flex items-center justify-center overflow-hidden hover:border-cyan-400 transition-colors">
-                                        {style.box_background_url ? (
-                                            <>
-                                                <img src={style.box_background_url} className="w-full h-full object-cover"/>
-                                                <button onClick={() => updateBoxStyle('box_background_url', '')} className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full z-10"><X size={10}/></button>
-                                            </>
-                                        ) : (
-                                            uploadingBoxBg ? <Loader2 size={16} className="animate-spin text-cyan-500" /> : <Upload size={16} className="text-slate-300"/>
-                                        )}
-                                        <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0], 'box_bg')}/>
-                                    </div>
-                                </div>
                             </div>
-                        )}
-                    </section>
-                </div>
-
-                {/* 🟢 Right Preview Builder */}
-                <div className="lg:col-span-8">
-                    <div className="bg-slate-900 rounded-[2.5rem] border-[12px] border-slate-800 shadow-2xl overflow-hidden flex flex-col min-h-[600px] relative h-full">
-                        <div className="p-4 border-b border-white/5 flex justify-between items-center bg-black/20 backdrop-blur-md z-20">
-                            <div className="flex items-center gap-2">
-                                <div className="flex gap-1.5">
-                                    <div className="w-2.5 h-2.5 rounded-full bg-red-500/50" />
-                                    <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/50" />
-                                    <div className="w-2.5 h-2.5 rounded-full bg-green-500/50" />
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">ภาพพื้นหลังกล่อง (เล็ก)</label>
+                                <div className="relative h-full min-h-[120px] bg-slate-50 rounded-xl border border-dashed border-slate-300 flex items-center justify-center overflow-hidden hover:border-cyan-400 transition-colors">
+                                    {style.box_background_url ? (
+                                        <>
+                                            <img src={style.box_background_url} className="w-full h-full object-cover"/>
+                                            <button onClick={() => updateBoxStyle('box_background_url', '')} className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full z-10"><X size={12}/></button>
+                                        </>
+                                    ) : (
+                                        uploadingBoxBg ? <Loader2 size={24} className="animate-spin text-cyan-500" /> : <Upload size={24} className="text-slate-300"/>
+                                    )}
+                                    <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0], 'box_bg')}/>
                                 </div>
-                                <span className="text-[10px] font-bold text-white/40 uppercase ml-2 tracking-widest">Login Live Preview</span>
-                            </div>
-                            <div className="px-3 py-1 bg-blue-500/20 rounded-full border border-blue-500/30">
-                                <span className="text-[10px] font-mono text-blue-400">X: {position.x}% Y: {position.y}%</span>
                             </div>
                         </div>
-
-                        <div 
-                            ref={previewRef}
-                            className="relative flex-1 w-full bg-slate-950 bg-cover bg-center transition-all duration-700"
-                            style={{ backgroundImage: `url(${shopData.login_config.background_url || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200'})` }}
-                        >
-                            <div 
-                                className="absolute inset-0 pointer-events-none transition-all duration-500"
-                                style={{ backgroundColor: `rgba(0,0,0, ${shopData.login_config.background_overlay})` }}
-                            />
-
-                            <Draggable 
-                                nodeRef={draggableNodeRef}
-                                bounds="parent"
-                                position={dragPos}
-                                onDrag={handleDrag}
-                                onStop={handleDragStop}
-                            >
-                                <div 
-                                    ref={draggableNodeRef}
-                                    className="absolute z-10 cursor-move select-none flex flex-col justify-center overflow-hidden transition-all duration-300 ease-out"
-                                    style={{ 
-                                        // 🟢 ผูกค่า CSS ทั้งหมดจากที่คุณตั้งไว้
-                                        width: `${style.width ?? 40}%`,
-                                        minHeight: `${style.height ?? 50}%`,
-                                        borderRadius: `${style.border_radius ?? 24}px`,
-                                        borderWidth: `${style.border_width ?? 2}px`,
-                                        borderColor: style.border_color ?? '#ffd700',
-                                        boxShadow: `${style.shadow_x ?? 0}px ${style.shadow_y ?? 20}px ${style.shadow_blur ?? 50}px ${style.shadow_color ?? 'rgba(0,0,0,0.5)'}`,
-                                        
-                                        backgroundColor: style.is_glassmorphism 
-                                            ? `rgba(255, 255, 255, ${style.box_bg_opacity ?? 0.1})` 
-                                            : (style.box_background_url ? 'transparent' : '#0f172a'),
-                                        backgroundImage: style.box_background_url ? `url(${style.box_background_url})` : 'none',
-                                        backgroundSize: 'cover',
-                                        backgroundPosition: 'center',
-                                        
-                                        backdropFilter: style.is_glassmorphism ? `blur(${style.box_bg_blur ?? 20}px)` : 'none',
-                                        WebkitBackdropFilter: style.is_glassmorphism ? `blur(${style.box_bg_blur ?? 20}px)` : 'none',
-                                    }}
-                                >
-                                    <div className="absolute top-4 right-4 text-white/30 animate-pulse pointer-events-none z-20">
-                                        <Move size={20} />
-                                    </div>
-                                    
-                                    <div className="w-full px-6 space-y-4 pointer-events-none opacity-80 z-10">
-                                        <div className="h-12 w-full bg-black/40 border border-white/10 rounded-xl flex items-center px-4">
-                                            <div className="w-4 h-4 rounded-full bg-slate-500"></div>
-                                            <div className="ml-3 h-2 w-32 bg-slate-500 rounded-full"></div>
-                                        </div>
-                                        <div className="h-12 w-full bg-black/40 border border-white/10 rounded-xl flex items-center px-4">
-                                            <div className="w-4 h-4 rounded-full bg-slate-500"></div>
-                                            <div className="ml-3 h-2 w-24 bg-slate-500 rounded-full"></div>
-                                        </div>
-                                        <div className="h-12 w-full bg-linear-to-r from-yellow-600 to-yellow-400 rounded-xl mt-6 flex items-center justify-center shadow-lg">
-                                            <span className="text-xs font-bold text-black">LOGIN ACCESS</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Draggable>
-
-                            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/5 backdrop-blur-md border border-white/10 text-white/60 px-6 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 pointer-events-none">
-                                <MousePointer2 size={12} className="text-blue-400" /> ลากกล่องเพื่อจัดวาง หรือตั้งค่าแถบด้านข้าง
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                    )}
+                </section>
             </div>
         </div>
     );
