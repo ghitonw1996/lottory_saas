@@ -1,19 +1,17 @@
 import { useState } from 'react';
-import { Store } from 'lucide-react';
-
+import { Store, MonitorPlay } from 'lucide-react';
 import ManageShopTheme from './ManageShopTheme'; 
 
 export default function ShopThemeManagement() {
-  const [activeTab, setActiveTab] = useState('theme-login');
+  const [isEditing, setIsEditing] = useState(false);
 
-  const tabs = [
-    { id: 'theme-login', label: 'จัดการธีม Login', icon: Store },
-  ];
+  // ถ้าเปิดโหมดแก้ไข ให้โหลดคอมโพเนนต์เต็มจอ
+  if (isEditing) {
+    return <ManageShopTheme onClose={() => setIsEditing(false)} />;
+  }
 
   return (
     <div className="space-y-4 md:space-y-6 pb-10 animate-fade-in">
-      
-      {/* --- Header Card --- */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="p-4 md:p-6 border-b border-gray-100">
             <h2 className="text-xl md:text-2xl font-black text-gray-800 tracking-tight flex items-center gap-2">
@@ -21,49 +19,26 @@ export default function ShopThemeManagement() {
                 จัดการธีมสีและรูปแบบร้านค้า
             </h2>
             <p className="text-xs md:text-sm text-gray-500 mt-1">
-                ตั้งค่าธีมร้านค้า
+                ตั้งค่าธีมหน้าต่าง Login และการแสดงผล
             </p>
-        </div>
-        
-        {/* --- Scrollable Tabs (Mobile Friendly) --- */}
-        <div className="px-4 md:px-6 bg-gray-50/50">
-            <div className="flex gap-2 overflow-x-auto no-scrollbar py-2 -mx-4 px-4 md:mx-0 md:px-0">
-                {tabs.map((tab) => {
-                    const Icon = tab.icon;
-                    const isActive = activeTab === tab.id;
-                    return (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
-                            className={`
-                                flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold whitespace-nowrap transition-all duration-200
-                                ${isActive 
-                                    ? 'bg-white text-blue-600 shadow-md shadow-blue-100 text-base scale-105 ring-1 ring-black/5' 
-                                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
-                                }
-                            `}
-                        >
-                            <Icon size={isActive ? 20 : 18} className={isActive ? 'text-blue-600' : 'text-gray-400'} />
-                            {tab.label}
-                        </button>
-                    )
-                })}
-            </div>
         </div>
       </div>
 
-      {/* --- Content Area --- */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 min-h-125 overflow-hidden relative">
-        <div className="p-4 md:p-6">
-            
-            {/* Tab 1: จัดการ layout หน้า login และธีมสีหลักของร้าน */}
-            {activeTab === 'theme-login' && (
-                <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                    <ManageShopTheme />
-                </div>
-            )}
-
-        </div>
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 min-h-[60vh] flex flex-col items-center justify-center p-8 text-center">
+         <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-6">
+            <MonitorPlay size={40} className="text-blue-600" />
+         </div>
+         <h3 className="text-2xl font-bold text-gray-800 mb-2">หน้าต่างปรับแต่ง Login</h3>
+         <p className="text-gray-500 mb-8 max-w-md mx-auto">
+            เข้าสู่โหมดปรับแต่งหน้า Login แบบเต็มหน้าจอ เพื่อให้การแสดงผลสเกลแม่นยำ 100% และไม่ถูกจำกัดพื้นที่โดยเมนูด้านข้าง
+         </p>
+         <button 
+            onClick={() => setIsEditing(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-bold shadow-lg shadow-blue-200 transition-all flex items-center gap-2 active:scale-95"
+         >
+            <MonitorPlay size={20} />
+            เปิดตัวปรับแต่งธีม (Full Screen)
+         </button>
       </div>
     </div>
   );

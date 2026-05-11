@@ -9,6 +9,7 @@ interface Shop {
   theme_color?: string;
   line_id?: string;
   login_config?: any;
+  brand_config?: any;
 }
 
 interface ShopContextType {

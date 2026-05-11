@@ -146,11 +146,8 @@ export default function Login() {
                     boxShadow: `${style.shadow_x ?? 0}px ${style.shadow_y ?? 20}px ${style.shadow_blur ?? 50}px ${style.shadow_color ?? 'rgba(0,0,0,0.5)'}`,
                     
                     backgroundColor: style.is_glassmorphism 
-                        ? `rgba(255, 255, 255, ${style.box_bg_opacity ?? 0.1})` 
-                        : (style.box_background_url ? 'transparent' : '#0f172a'),
-                    backgroundImage: style.box_background_url ? `url(${style.box_background_url})` : 'none',
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
+                        ? `rgba(${parseInt((style.box_bg_color || '#ffffff').slice(1, 3), 16)}, ${parseInt((style.box_bg_color || '#ffffff').slice(3, 5), 16)}, ${parseInt((style.box_bg_color || '#ffffff').slice(5, 7), 16)}, ${style.box_bg_opacity ?? 0.1})` 
+                        : (style.box_bg_color || '#0f172a'),
                     
                     backdropFilter: style.is_glassmorphism ? `blur(${style.box_bg_blur ?? 20}px)` : 'none',
                     WebkitBackdropFilter: style.is_glassmorphism ? `blur(${style.box_bg_blur ?? 20}px)` : 'none',
@@ -158,25 +155,44 @@ export default function Login() {
                 }}
             >
                 <div className="flex flex-col items-center mb-8 relative z-10">
-                    {/* ส่วน Logo & Crown */}
-                    {shop?.logo_url ? (
-                        <div className="relative group">
-                            <div className="absolute -inset-1 bg-linear-to-r from-yellow-600 to-yellow-400 rounded-full blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
-                            <img src={shop.logo_url} alt="Shop Logo" className="relative w-24 h-24 object-contain mb-4 drop-shadow-2xl" />
-                        </div>
-                    ) : (
+                    {/* 🟢 อัปเดต: ส่วน Logo (อีโมจิ หรือ รูปภาพ) */}
+                    {shop?.brand_config?.logo_type === 'emoji' ? (
                         <div className="relative mb-6 flex justify-center items-center group">
                             <div className="absolute -inset-4 bg-yellow-500/20 blur-2xl rounded-full group-hover:bg-yellow-500/30 transition duration-700"></div>
-                            <div className="relative flex items-center justify-center w-24 h-24 rounded-full border border-yellow-500/30 bg-black/50 shadow-[inset_0_0_20px_rgba(212,175,55,0.2)]">
-                                <Crown className="w-12 h-12 text-yellow-500 drop-shadow-[0_0_15px_rgba(255,215,0,0.8)]" strokeWidth={1.5} />
+                            <div className="relative flex items-center justify-center w-20 h-20 md:w-24 md:h-24 rounded-full border border-yellow-500/30 bg-black/50 shadow-[inset_0_0_20px_rgba(212,175,55,0.2)]">
+                                <span className="text-4xl md:text-5xl drop-shadow-[0_0_15px_rgba(255,215,0,0.8)]">
+                                    {shop.brand_config.logo_emoji || '👑'}
+                                </span>
                             </div>
+                        </div>
+                    ) : shop?.logo_url ? (
+                        <div className="relative group">
+                            <div className="absolute -inset-1 bg-gradient-to-r from-yellow-600 to-yellow-400 rounded-full blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+                            <img src={shop.logo_url} alt="Shop Logo" className="relative w-20 h-20 md:w-24 md:h-24 object-contain mb-4 drop-shadow-2xl" />
+                        </div>
+                    ) : (
+                        <div className="w-20 h-20 md:w-24 md:h-24 rounded-full border border-yellow-500/30 bg-black/50 shadow-inner flex items-center justify-center mb-6">
+                            <span className="text-yellow-500 text-3xl font-black">L</span>
                         </div>
                     )}
 
-                    <h1 className="text-4xl font-black text-transparent bg-clip-text bg-linear-to-b from-gray-200 to-yellow-600 tracking-tighter text-center uppercase drop-shadow-md">
+                    {/* 🟢 อัปเดต: ชื่อร้าน (ฟอนต์ และ สี Gradient) */}
+                    <h1 
+                        className="text-2xl md:text-4xl font-black tracking-tighter text-center uppercase drop-shadow-md"
+                        style={{
+                            fontFamily: shop?.brand_config?.font_family || 'sans-serif',
+                            backgroundImage: `linear-gradient(to bottom, ${shop?.brand_config?.name_color_from || '#f3f4f6'}, ${shop?.brand_config?.name_color_to || '#ca8a04'})`,
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                        }}
+                    >
                         {isRegister ? 'REGISTER' : (shop?.name || 'Thailot')}
                     </h1>
-                    <div className="h-1 w-12 bg-linear-to-r from-transparent via-yellow-500 to-transparent mt-2 rounded-full"></div>
+                    
+                    <div 
+                        className="h-1 w-12 mt-2 rounded-full"
+                        style={{ backgroundImage: `linear-gradient(to right, transparent, ${shop?.brand_config?.name_color_to || '#ca8a04'}, transparent)` }}
+                    ></div>
                 </div>
 
                 <form onSubmit={isRegister ? handleRegister : handleLogin} className="space-y-5 relative z-10">
