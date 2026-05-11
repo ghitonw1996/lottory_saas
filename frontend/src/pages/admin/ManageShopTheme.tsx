@@ -17,6 +17,8 @@ export default function ManageShopTheme({ onClose }: { onClose?: () => void }) {
             font_family: "Kanit",
             name_color_from: "#f3f4f6",
             name_color_to: "#ca8a04",
+            text_shadow: "0px 2px 1px #996515, 0px 10px 15px rgba(0,0,0,0.5)",
+            text_stroke: 'none',
             logo_type: "image",
             logo_emoji: "👑"
         },

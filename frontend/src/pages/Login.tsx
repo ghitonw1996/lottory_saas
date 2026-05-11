@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useShop } from '../contexts/ShopContext';
+import BrandLogo from '../components/admin/BrandLogo';
+
 import { loginApi, registerApi } from '../api/auth';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -154,46 +156,13 @@ export default function Login() {
                     margin: 0 
                 }}
             >
-                <div className="flex flex-col items-center mb-8 relative z-10">
-                    {/* 🟢 อัปเดต: ส่วน Logo (อีโมจิ หรือ รูปภาพ) */}
-                    {shop?.brand_config?.logo_type === 'emoji' ? (
-                        <div className="relative mb-6 flex justify-center items-center group">
-                            <div className="absolute -inset-4 bg-yellow-500/20 blur-2xl rounded-full group-hover:bg-yellow-500/30 transition duration-700"></div>
-                            <div className="relative flex items-center justify-center w-20 h-20 md:w-24 md:h-24 rounded-full border border-yellow-500/30 bg-black/50 shadow-[inset_0_0_20px_rgba(212,175,55,0.2)]">
-                                <span className="text-4xl md:text-5xl drop-shadow-[0_0_15px_rgba(255,215,0,0.8)]">
-                                    {shop.brand_config.logo_emoji || '👑'}
-                                </span>
-                            </div>
-                        </div>
-                    ) : shop?.logo_url ? (
-                        <div className="relative group">
-                            <div className="absolute -inset-1 bg-gradient-to-r from-yellow-600 to-yellow-400 rounded-full blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
-                            <img src={shop.logo_url} alt="Shop Logo" className="relative w-20 h-20 md:w-24 md:h-24 object-contain mb-4 drop-shadow-2xl" />
-                        </div>
-                    ) : (
-                        <div className="w-20 h-20 md:w-24 md:h-24 rounded-full border border-yellow-500/30 bg-black/50 shadow-inner flex items-center justify-center mb-6">
-                            <span className="text-yellow-500 text-3xl font-black">L</span>
-                        </div>
-                    )}
-
-                    {/* 🟢 อัปเดต: ชื่อร้าน (ฟอนต์ และ สี Gradient) */}
-                    <h1 
-                        className="text-2xl md:text-4xl font-black tracking-tighter text-center uppercase drop-shadow-md"
-                        style={{
-                            fontFamily: shop?.brand_config?.font_family || 'sans-serif',
-                            backgroundImage: `linear-gradient(to bottom, ${shop?.brand_config?.name_color_from || '#f3f4f6'}, ${shop?.brand_config?.name_color_to || '#ca8a04'})`,
-                            WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent',
-                        }}
-                    >
-                        {isRegister ? 'REGISTER' : (shop?.name || 'Thailot')}
-                    </h1>
-                    
-                    <div 
-                        className="h-1 w-12 mt-2 rounded-full"
-                        style={{ backgroundImage: `linear-gradient(to right, transparent, ${shop?.brand_config?.name_color_to || '#ca8a04'}, transparent)` }}
-                    ></div>
-                </div>
+                <BrandLogo 
+                    name={shop?.name || 'Thailot'} 
+                    logoUrl={shop?.logo_url} 
+                    brandConfig={shop?.brand_config}
+                    overrideName={isRegister ? 'REGISTER' : undefined}
+                    className="flex flex-col items-center mb-8 relative z-10"
+                />
 
                 <form onSubmit={isRegister ? handleRegister : handleLogin} className="space-y-5 relative z-10">
                     {/* Username Input */}

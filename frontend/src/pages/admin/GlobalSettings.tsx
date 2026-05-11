@@ -2,9 +2,33 @@ import { useEffect, useState } from 'react';
 import client from '../../api/client';
 import { 
     Settings, Loader2, CheckCircle2, 
-    Image as ImageIcon, X, Palette, MessageCircle, Store
+    Image as ImageIcon, X, Palette, MessageCircle, Store, Sparkles
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+
+const brandPresets = [
+    { 
+        id: 'luxury-gold', name: 'Luxury Gold', 
+        font: "'Prompt', sans-serif", from: '#bf953f', to: '#fcf6ba', 
+        shadow: '0px 2px 4px rgba(0,0,0,0.5)', stroke: '0.5px #8a6d3b' 
+    },
+    { 
+        id: 'cyber-neon', name: 'Cyber Neon', 
+        font: "'Kanit', sans-serif", from: '#00f2fe', to: '#4facfe', 
+        shadow: '0px 0px 15px #4facfe', stroke: 'none' 
+    },
+    { 
+        id: 'vintage-thai', name: 'Siam Heritage', 
+        font: "'Chonburi', cursive", from: '#8e2de2', to: '#4a00e0', 
+        shadow: '2px 2px 0px #ffffff', stroke: '1px #ffffff' 
+    },
+    { 
+        id: 'midnight-glass', name: 'Midnight', 
+        font: "'Prompt', sans-serif", from: '#232526', to: '#414345', 
+        shadow: '0px 5px 15px rgba(0,0,0,1)', stroke: '0.5px rgba(255,255,255,0.2)' 
+    },
+    // คุณสามารถก๊อปปี้สไตล์ใหม่ๆ มาวางเพิ่มตรงนี้ได้ทันที
+];
 
 export default function GlobalSettings() {
     const [loading, setLoading] = useState(false);
@@ -19,9 +43,11 @@ export default function GlobalSettings() {
         line_target_id: '',
         line_id: '',
         brand_config: {
-            font_family: "Kanit",
-            name_color_from: "#f3f4f6",
-            name_color_to: "#ca8a04",
+            font_family: "'Prompt', sans-serif",
+            name_color_from: "#FFF7CC",
+            name_color_to: "#D4AF37",
+            text_shadow: "0px 2px 1px #996515, 0px 10px 15px rgba(0,0,0,0.5)",
+            text_stroke: 'none',
             logo_type: "image",
             logo_emoji: "👑"
         }
@@ -45,9 +71,11 @@ export default function GlobalSettings() {
                     line_target_id: shop.line_target_id || '',
                     line_id: shop.line_id || '',
                     brand_config: {
-                        font_family: shop.brand_config?.font_family || "Kanit",
-                        name_color_from: shop.brand_config?.name_color_from || "#f3f4f6",
-                        name_color_to: shop.brand_config?.name_color_to || "#ca8a04",
+                        font_family: shop.brand_config?.font_family || "'Prompt', sans-serif",
+                        name_color_from: shop.brand_config?.name_color_from || "#FFF7CC",
+                        name_color_to: shop.brand_config?.name_color_to || "#D4AF37",
+                        text_shadow: shop.brand_config?.text_shadow || "0px 2px 1px #996515, 0px 10px 15px rgba(0,0,0,0.5)",
+                        text_stroke: shop.brand_config?.text_stroke || 'none',
                         logo_type: shop.brand_config?.logo_type || "image",
                         logo_emoji: shop.brand_config?.logo_emoji || "👑"
                     }
@@ -142,25 +170,65 @@ export default function GlobalSettings() {
                             />
                         </div>
 
-                        {/* ฟอนต์ และ สี */}
-                        <div className="space-y-2">
-                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">รูปแบบฟอนต์</label>
-                            <select 
-                                value={globalData.brand_config.font_family}
-                                onChange={e => setGlobalData({...globalData, brand_config: {...globalData.brand_config, font_family: e.target.value}})}
-                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
-                            >
-                                <option value="sans-serif">System Default</option>
-                                <option value="'Prompt', sans-serif">Prompt (พร้อม - ทันสมัย)</option>
-                                <option value="'Kanit', sans-serif">Kanit (คณิต - วัยรุ่น)</option>
-                                <option value="'Sarabun', sans-serif">Sarabun (สารบรรณ - ทางการ)</option>
-                            </select>
-                        </div>
-                        <div className="space-y-2">
+                        {/* 🟢 ส่วนสไตล์สำเร็จรูป (รวม 3D และ Neon) */}
+                        <div className="space-y-3 md:col-span-2 mt-2">
                             <label className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                                <Palette size={14}/> สีธีมหลัก (Primary Color)
+                                <Sparkles size={14} className="text-yellow-500"/> รูปแบบชื่อแบรนด์ (Brand Text Style)
                             </label>
-                            <div className="flex items-center gap-4 bg-slate-50 p-2 rounded-xl border border-slate-200">
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                {brandPresets.map(preset => {
+                                    // เช็คว่าสไตล์ปัจจุบันตรงกับปุ่มไหน
+                                    const isActive = globalData.brand_config.name_color_from === preset.from && globalData.brand_config.font_family === preset.font;
+                                    return (
+                                        <button
+                                            key={preset.id}
+                                            type="button"
+                                            // 🔴 เซ็ตค่า shadow เข้าไปด้วยตอนกดเลือก
+                                            onClick={() => setGlobalData({
+                                                ...globalData, 
+                                                brand_config: {
+                                                    ...globalData.brand_config, 
+                                                    font_family: preset.font, 
+                                                    name_color_from: preset.from, 
+                                                    name_color_to: preset.to,
+                                                    text_shadow: preset.shadow
+                                                }
+                                            })}
+                                            className={`p-4 rounded-2xl border-2 transition-all duration-300 flex flex-col items-center justify-center gap-3 overflow-hidden relative group ${
+                                                isActive
+                                                    ? 'border-blue-500 bg-blue-50 shadow-md ring-4 ring-blue-500/10'
+                                                    : 'border-slate-100 bg-slate-50 hover:border-blue-200 hover:bg-white hover:shadow-sm'
+                                            }`}
+                                        >
+                                            <div className="bg-slate-900 w-full py-3 rounded-xl flex items-center justify-center shadow-inner">
+                                                <span
+                                                    className="text-xl md:text-2xl font-black uppercase tracking-tighter"
+                                                    style={{
+                                                        fontFamily: preset.font,
+                                                        backgroundImage: `linear-gradient(to bottom, ${preset.from}, ${preset.to})`,
+                                                        WebkitBackgroundClip: 'text',
+                                                        WebkitTextFillColor: 'transparent',
+                                                        filter: `drop-shadow(${preset.shadow})` // พรีวิวสไตล์สมจริง
+                                                    }}
+                                                >
+                                                    {globalData.name ? globalData.name.substring(0, 8) : 'LOTTO'}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <span className={`text-[10px] font-bold uppercase tracking-widest ${isActive ? 'text-blue-600' : 'text-slate-500'}`}>{preset.name}</span>
+                                                {isActive && <CheckCircle2 size={14} className="text-blue-500" />}
+                                            </div>
+                                        </button>
+                                    )
+                                })}
+                            </div>
+                        </div>
+
+                        <div className="space-y-2 md:col-span-2 mt-4 pt-4 border-t border-slate-100">
+                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                <Palette size={14}/> สีธีมหลักของเว็บ (Primary App Color)
+                            </label>
+                            <div className="flex items-center gap-4 bg-slate-50 p-2 rounded-xl border border-slate-200 max-w-sm">
                                 <input 
                                     type="color" 
                                     value={globalData.theme_color} 
@@ -171,16 +239,8 @@ export default function GlobalSettings() {
                                     type="text" 
                                     value={globalData.theme_color}
                                     onChange={e => setGlobalData({...globalData, theme_color: e.target.value})}
-                                    className="flex-1 bg-transparent border-none outline-none font-mono uppercase text-slate-600"
+                                    className="flex-1 bg-transparent border-none outline-none font-mono uppercase text-slate-600 font-bold"
                                 />
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">สีชื่อร้าน (ไล่เฉด Gradient)</label>
-                            <div className="flex items-center gap-2">
-                                <input type="color" value={globalData.brand_config.name_color_from} onChange={e => setGlobalData({...globalData, brand_config: {...globalData.brand_config, name_color_from: e.target.value}})} className="w-full h-12 cursor-pointer rounded-xl bg-slate-50 border border-slate-200" />
-                                <span className="text-slate-400 font-bold">ไป</span>
-                                <input type="color" value={globalData.brand_config.name_color_to} onChange={e => setGlobalData({...globalData, brand_config: {...globalData.brand_config, name_color_to: e.target.value}})} className="w-full h-12 cursor-pointer rounded-xl bg-slate-50 border border-slate-200" />
                             </div>
                         </div>
 
@@ -221,7 +281,7 @@ export default function GlobalSettings() {
                     </div>
                 </section>
 
-                {/* 2. การเชื่อมต่อ API & LINE (เหมือนเดิม) */}
+                {/* 2. การเชื่อมต่อ API & LINE */}
                 <section className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 space-y-6">
                     <h3 className="font-bold text-slate-800 flex items-center gap-2 border-b border-slate-50 pb-4">
                         <MessageCircle size={20} className="text-green-500" /> การเชื่อมต่อ LINE (LINE OA Integration)
