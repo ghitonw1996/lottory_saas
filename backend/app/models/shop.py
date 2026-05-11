@@ -38,8 +38,13 @@ class Shop(Base):
             "box_bg_blur": 20,
             "box_background_url": ""
         },
-        "logo_size": 120,
-        "font_family": "Kanit"
+    })
+    brand_config = Column(JSONB, default={
+        "font_family": "Kanit",
+        "name_color_from": "#f3f4f6",
+        "name_color_to": "#ca8a04",
+        "logo_type": "image",
+        "logo_emoji": "👑"
     })
     
     # Relationship: เชื่อมไปหา User (ใช้ string "User" เพื่อเลี่ยง circular import)

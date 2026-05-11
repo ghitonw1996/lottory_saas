@@ -33,6 +33,7 @@ class ShopResponse(ShopBase):
     line_id: Optional[str] = None
     theme_color: Optional[str] = "#2563EB"
     login_config: Optional[Dict[str, Any]] = None
+    brand_config: Optional[Dict[str, Any]] = None
     class Config:
         from_attributes = True
 
@@ -42,9 +43,10 @@ class ShopConfigUpdate(BaseModel):
     line_channel_token: Optional[str] = None
     line_target_id: Optional[str] = None
     line_id: Optional[str] = None
-    login_config: Optional[Dict[str, Any]] = None
     logo_url: Optional[str] = None       
     theme_color: Optional[str] = None
+    login_config: Optional[Dict[str, Any]] = None
+    brand_config: Optional[Dict[str, Any]] = None
 
 # --- User Schemas ---
 class UserBase(BaseModel):

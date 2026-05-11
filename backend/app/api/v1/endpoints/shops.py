@@ -31,6 +31,7 @@ def get_shop_config(subdomain: str, db: Session = Depends(get_db)):
         "logo_url": shop.logo_url,
         "theme_color": shop.theme_color,
         "login_config": shop.login_config,
+        "brand_config": shop.brand_config,
         "line_id": shop.line_id
     }
 
@@ -62,7 +63,6 @@ def update_shop_config(
     if config_in.theme_color is not None:
         shop.theme_color = config_in.theme_color
 
-    # อัปเดตข้อมูล
     if config_in.line_channel_token is not None:
         shop.line_channel_token = config_in.line_channel_token
         
@@ -74,6 +74,9 @@ def update_shop_config(
 
     if config_in.login_config is not None:
         shop.login_config = config_in.login_config
+
+    if config_in.brand_config is not None:
+        shop.brand_config = config_in.brand_config
 
     db.commit()
     db.refresh(shop)
