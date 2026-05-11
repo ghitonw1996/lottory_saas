@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { 
     Loader2, Camera, ChevronUp, ChevronDown, 
     Square, Maximize, Image as ImageIcon, Droplets, 
-    ArrowLeft, CheckCircle2, PaintBucket, Sparkles
+    ArrowLeft, CheckCircle2, PaintBucket
 } from 'lucide-react';
 
 export default function ThemeSidebar({ 
