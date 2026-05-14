@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useShop } from '../contexts/ShopContext';
-import BrandLogo from '../components/admin/BrandLogo';
+import { ShopLogo, ShopName } from '../components/admin/BrandLogo';
 
 import { loginApi, registerApi } from '../api/auth';
 import { useNavigate } from 'react-router-dom';
@@ -156,13 +156,20 @@ export default function Login() {
                     margin: 0 
                 }}
             >
-                <BrandLogo 
-                    name={shop?.name || 'Thailot'} 
-                    logoUrl={shop?.logo_url} 
-                    brandConfig={shop?.brand_config}
-                    overrideName={isRegister ? 'REGISTER' : undefined}
-                    className="flex flex-col items-center mb-8 relative z-10"
-                />
+                <div className="flex flex-col items-center mb-8 relative z-10 w-full">
+                    {/* 🟢 เพิ่ม ShopLogo กลับเข้ามา */}
+                    <ShopLogo 
+                        logoUrl={shop?.logo_url} 
+                        brandConfig={shop?.brand_config} 
+                        className="mb-4"
+                    />
+                    
+                    <ShopName 
+                        name={shop?.name || 'Thailot'} 
+                        brandConfig={shop?.brand_config}
+                        overrideName={isRegister ? 'REGISTER' : undefined}
+                    />
+                </div>
 
                 <form onSubmit={isRegister ? handleRegister : handleLogin} className="space-y-5 relative z-10">
                     {/* Username Input */}

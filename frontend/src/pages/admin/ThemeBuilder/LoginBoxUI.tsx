@@ -1,5 +1,5 @@
 import { User, Lock } from 'lucide-react';
-import BrandLogo from '../../../components/admin/BrandLogo';
+import { ShopLogo, ShopName } from '../../../components/admin/BrandLogo';
 
 export default function LoginBoxUI({ shopData }: { shopData: any }) {
     const config = shopData.login_config;
@@ -7,13 +7,20 @@ export default function LoginBoxUI({ shopData }: { shopData: any }) {
 
     return (
         <div className="flex flex-col items-center justify-center w-full h-full p-6 relative z-10 pointer-events-none select-none">
-            <BrandLogo 
-                name={shopData.name} 
-                logoUrl={shopData.logo_url} 
-                brandConfig={brand}
-                className="flex flex-col items-center mb-8"
-            />
-
+            <div className="flex flex-col items-center mb-8 w-full">
+                {/* 🟢 เพิ่ม ShopLogo เข้ามาในหน้าพรีวิว */}
+                <ShopLogo 
+                    logoUrl={shopData.logo_url} 
+                    brandConfig={brand} 
+                    className="mb-4"
+                />
+                
+                <ShopName 
+                    name={shopData.name} 
+                    brandConfig={brand}
+                />
+            </div>
+            
             {/* ส่วน Input ฟอร์ม (แสดงเป็นตัวอย่าง) */}
             <div className="space-y-4 md:space-y-5 w-full relative z-10 px-2 md:px-0">
                 <div className="relative">
