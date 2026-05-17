@@ -1,4 +1,3 @@
-import { Trophy } from 'lucide-react';
 
 export default function LottoCardMinimal({ lotto, brandColors }: { lotto: any, brandColors: string[] }) {
     const primaryColor = brandColors && brandColors.length > 0 ? brandColors[brandColors.length - 1] : '#D4AF37';
