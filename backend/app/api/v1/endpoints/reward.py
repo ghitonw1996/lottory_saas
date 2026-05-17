@@ -8,7 +8,7 @@ from app.models.lotto import Ticket, TicketItem, TicketStatus, LottoResult, Numb
 from app.schemas import RewardRequest, RewardResultResponse, RewardHistoryResponse
 from app.core.config import get_thai_now, get_round_date, settings
 from decimal import Decimal
-from datetime import date
+from datetime import date, datetime
 from typing import List, Optional, Dict
 from uuid import UUID 
 from app.core.game_logic import check_is_win_precise
@@ -211,6 +211,63 @@ def get_daily_rewards(
             
     return final_map
 
+# ==========================================
+# 🌐 PUBLIC API (ไม่ต้องล็อกอิน) สำหรับหน้า Login
+# ==========================================
+@router.get("/public/daily-results")
+def get_public_daily_results(
+    db: Session = Depends(get_db)
+):
+    """
+    API ดึงผลรางวัลของวันนี้สำหรับหน้า Login (ไม่ต้องมี Token)
+    คืนค่าเป็น Array ของหวยที่ 'ออกผลแล้ว' ในวันนี้เท่านั้น
+    """
+    # 1. หาวันที่ปัจจุบัน (อิงตามเวลาไทย)
+    now_thai = get_thai_now()
+    target_date = get_round_date(now_thai, settings.DAY_CUTOFF_TIME)
+    date_str = target_date.strftime("%Y-%m-%d")
+
+    # 2. ดึงผลรางวัลทั้งหมดของวันนี้
+    results = db.query(LottoResult).filter(
+        LottoResult.round_date == date_str
+    ).all()
+    
+    # ถ้ายังไม่มีผลอะไรออกเลยในวันนี้
+    if not results:
+        return []
+
+    # 3. จัดกลุ่มผลรางวัลด้วย Code (เพื่อให้ร้านย่อยเห็นผลจากร้านหลักได้)
+    code_to_result = {}
+    for r in results:
+        # สมมติว่ามี relation ไปยัง LottoType
+        lotto = db.query(LottoType).filter(LottoType.id == r.lotto_type_id).first()
+        if lotto and lotto.code:
+            code_to_result[lotto.code] = {
+                "top_3": r.top_3 or (r.reward_data.get("top") if r.reward_data else ""),
+                "bottom_2": r.bottom_2 or (r.reward_data.get("bottom") if r.reward_data else ""),
+                "created_at": r.created_at
+            }
+
+    # 4. ดึงหวยทั้งหมดที่ร้านนี้มี และจับคู่กับผลรางวัล
+    all_lottos = db.query(LottoType).filter(LottoType.is_active == True).all()
+    
+    public_results = []
+    for lotto in all_lottos:
+        if lotto.code in code_to_result:
+            res_data = code_to_result[lotto.code]
+            public_results.append({
+                "id": str(lotto.id),
+                "name": lotto.name,
+                "img_url": lotto.img_url,
+                "top_3": res_data["top_3"],
+                "bottom_2": res_data["bottom_2"],
+                "announced_at": res_data["created_at"]
+            })
+            
+    # เรียงลำดับตามเวลาประกาศผลล่าสุดขึ้นก่อน
+    public_results.sort(key=lambda x: x["announced_at"], reverse=True)
+    
+    return public_results
 
 @router.get("/history")
 def get_reward_history(

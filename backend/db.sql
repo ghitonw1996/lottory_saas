@@ -216,10 +216,66 @@ ALTER TABLE tickets ADD COLUMN commission_amount DECIMAL(15, 2) DEFAULT 0.00;
 -- เพิ่มยอดถูกรางวัลของบิล (บาท) ในตารางบิล
 ALTER TABLE tickets ADD COLUMN winning_amount NUMERIC(10, 2) DEFAULT 0;
 
-/* ==========================================================================
-   ส่วนที่ 6: ข้อมูลตั้งต้น (Seeding - Optional)
-   ========================================================================== */
--- สร้าง Superadmin (Password: 'admin123' - ต้อง Hash ใหม่ในระบบจริง)
--- INSERT INTO shops (name, code, subdomain) VALUES ('System Shop', 'SYS001', 'system');
--- INSERT INTO users (username, password_hash, role, shop_id) 
--- VALUES ('superadmin', '$2b$12$EXAMPLEHASH...', 'superadmin', (SELECT id FROM shops LIMIT 1));
+ALTER TABLE shops ADD COLUMN line_id VARCHAR;
+
+ALTER TABLE shops ALTER COLUMN login_config SET DEFAULT '{
+  "background_url": "",
+  "background_overlay": 0.3,
+  "box_position": {"x": 50, "y": 50},
+  "box_style": {
+    "is_glassmorphism": true,
+    "width": 40,
+    "height": 50,
+    "border_radius": 24,
+    "border_width": 2,
+    "border_color": "#ffd700",
+    "shadow_x": 0,
+    "shadow_y": 20,
+    "shadow_blur": 50,
+    "shadow_color": "#00000080",
+    "box_bg_opacity": 0.1,
+    "box_bg_blur": 20,
+    "box_background_url": ""
+  },
+  "hero_login": {
+    "Hero": "", 
+    "is_visible": True,
+    "Hero_position": {"x": 50, "y": 50},
+    "config": { 
+      "width": 40,
+      "height": 50
+    }
+  },
+  "results_section": {
+    "is_visible": True,
+    "results_style": "glass",
+    "title": "ผลรางวัลล่าสุด",
+    "display_limit": 10,
+    "theme": "glass"
+  },
+  "payout_config": {
+    "is_visible": True,
+    "payout_style": "cascade",
+    "position": {"x": 20, "y": 65}, 
+    "config": {"width": 25, "height": "auto"},
+    "rates": {
+      "top3": 900,
+      "tod3": 120,
+      "top2": 90,
+      "bottom2": 90,
+      "run_top": 3.2,
+      "run_bottom": 4.2
+    }
+  }
+}'::jsonb;
+
+ALTER TABLE shops ADD COLUMN brand_config JSONB DEFAULT '{
+  "font_family": "Kanit",
+  "fill_type": "color",
+  "name_colors": ["#f3f4f6", "#ca8a04"],
+  "texture_url": "",
+  "text_shadow": "0px 2px 1px #996515, 0px 10px 15px rgba(0,0,0,0.5)",
+  "text_stroke": "none",
+  "logo_type": "image",
+  "logo_emoji": "👑"
+}'::jsonb;

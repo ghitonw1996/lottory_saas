@@ -32,6 +32,24 @@ export default function ManageShopTheme({ onClose }: { onClose?: () => void }) {
                 width: 40, height: 50, border_radius: 24,
                 shadow_x: 0, shadow_y: 20, shadow_blur: 50, shadow_color: '#00000080',
                 box_bg_opacity: 0.1, box_bg_blur: 20, box_bg_color: '#ffffff'
+            },
+            hero_login: {
+                Hero_url: "",
+                is_visible: true,
+                Hero_position:  { x: 50, y: 50 },
+                config: { width: 40, height: 50 }
+            },
+            results_section: {
+                is_visible: true,
+                title: "ผลรางวัลล่าสุด",
+                display_limit: 10,
+                theme: "glass"
+            },
+            payout_config: {
+                is_visible: true,
+                position: { x: 20, y: 65 },
+                config: { width: 25, height: "auto" },
+                rates: { top3: 900, tod3: 120, top2: 90, bottom2: 90, run_top: 3.2, run_bottom: 4.2 }
             }
         }
     });
@@ -50,8 +68,21 @@ export default function ManageShopTheme({ onClose }: { onClose?: () => void }) {
                         login_config: {
                             ...prev.login_config,
                             ...myShop.login_config,
+                            hero_login: { 
+                                ...prev.login_config.hero_login, 
+                                ...(myShop.login_config?.hero_login || {}) 
+                            },
                             box_style: { ...prev.login_config.box_style, ...(myShop.login_config?.box_style || {}) },
-                            box_position: { ...prev.login_config.box_position, ...(myShop.login_config?.box_position || {}) }
+                            box_position: { ...prev.login_config.box_position, ...(myShop.login_config?.box_position || {}) },
+
+                            results_section: {
+                                ...prev.login_config.results_section,
+                                ...(myShop.login_config?.results_section || {})
+                            },
+                            payout_config: {
+                                ...(prev.login_config.payout_config || { is_visible: true, position: {x:20, y:65}, config: {width: 25, height: "auto"}, rates: {top3: 900, tod3: 120, top2: 90, bottom2: 90, run_top: 3.2, run_bottom: 4.2} }),
+                                ...(myShop.login_config?.payout_config || {})
+                            }
                         }
                     }));
                 }
@@ -77,6 +108,25 @@ export default function ManageShopTheme({ onClose }: { onClose?: () => void }) {
         }
     };
 
+    const handleFileUploadHero = async (file: File) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('folder', 'theme');
+        try {
+            const res = await client.post('/upload/', formData, { headers: { 'Content-Type': 'multipart/form-data' }});
+            setShopData(prev => ({ 
+                ...prev, 
+                login_config: { 
+                    ...prev.login_config, 
+                    hero_login: { ...prev.login_config.hero_login, Hero_url: res.data.url }
+                }
+            }));
+            toast.success('อัปโหลดภาพ Hero สำเร็จ');
+        } catch (err) {
+            toast.error('อัปโหลดภาพ Hero ไม่สำเร็จ');
+        }
+    };
+
     const handleSaveShop = async (e: React.FormEvent) => {
         e.preventDefault();
         setSubmitting(true);
@@ -92,14 +142,14 @@ export default function ManageShopTheme({ onClose }: { onClose?: () => void }) {
     };
 
     if (loading) return (
-        <div className="fixed inset-0 z-100 bg-slate-900 flex flex-col items-center justify-center text-slate-400">
+        <div className="fixed inset-0 z-[100] bg-slate-900 flex flex-col items-center justify-center text-slate-400">
             <Loader2 className="animate-spin mb-4 text-blue-500" size={40} />
             <p className="animate-pulse font-medium">กำลังเตรียมสตูดิโอออกแบบของคุณ...</p>
         </div>
     );
 
     return (
-        <div className="fixed inset-0 z-100 flex flex-col md:flex-row bg-[#0f172a] overflow-hidden font-sans">
+        <div className="fixed inset-0 z-[100] flex flex-col md:flex-row bg-[#0f172a] overflow-hidden font-sans">
             <ThemeSimulator shopData={shopData} setShopData={setShopData} />
             <ThemeSidebar 
                 shopData={shopData} 
@@ -108,6 +158,7 @@ export default function ManageShopTheme({ onClose }: { onClose?: () => void }) {
                 onSave={handleSaveShop} 
                 submitting={submitting} 
                 onUploadBg={handleFileUploadBg} 
+                onUploadHero={handleFileUploadHero}
             />
         </div>
     );

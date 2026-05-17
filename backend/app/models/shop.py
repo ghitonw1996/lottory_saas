@@ -38,6 +38,37 @@ class Shop(Base):
             "box_bg_blur": 20,
             "box_background_url": ""
         },
+        "hero_login": {
+            "Hero_url": "",
+            "is_visible": True,
+            "Hero_position": {"x": 50, "y": 50},
+            "config": { 
+                "width": 40,
+                "height": 50
+            }
+        },
+        "results_section": {
+            "is_visible": True,
+            "results_style": "glass",
+            "title": "ผลรางวัลล่าสุด",
+            "display_limit": 10,
+            "theme": "glass"
+        },
+        "payout_config": {
+            "is_visible": True,
+            "payout_style": "cascade",
+            "position": {"x": 20, "y": 65}, 
+            "config": {"width": 25, "height": "auto"},
+            "rates": {
+                "top3": 900,
+                "tod3": 120,
+                "top2": 90,
+                "bottom2": 90,
+                "run_top": 3.2,
+                "run_bottom": 4.2
+            }
+        },
+        
     })
     brand_config = Column(JSONB, default={
         "font_family": "Kanit",

@@ -2,23 +2,37 @@ import { useState } from 'react';
 import { 
     Loader2, Camera, ChevronUp, ChevronDown, 
     Square, Maximize, Image as ImageIcon, Droplets, 
-    ArrowLeft, CheckCircle2, PaintBucket
+    ArrowLeft, CheckCircle2, PaintBucket,
+    Eye, EyeOff, LayoutTemplate, Trophy, Wallet
 } from 'lucide-react';
 
 export default function ThemeSidebar({ 
-    shopData, setShopData, onClose, onSave, submitting, onUploadBg 
+    shopData, setShopData, onClose, onSave, submitting, onUploadBg, onUploadHero 
 }: { 
-    shopData: any, setShopData: any, onClose?: () => void, onSave: (e: any) => void, submitting: boolean, onUploadBg: (file: File) => void 
+    shopData: any, setShopData: any, onClose?: () => void, onSave: (e: any) => void, submitting: boolean, onUploadBg: (file: File) => void, onUploadHero: (file: File) => void 
 }) {
     const [openSection, setOpenSection] = useState<string>('brand');
     const [uploadingBg, setUploadingBg] = useState(false);
+    const [uploadingHero, setUploadingHero] = useState(false); 
 
     const toggleSection = (section: string) => setOpenSection(prev => prev === section ? '' : section);
-    
+
     // Helper ช่วยย่นโค้ดการอัปเดต State
     const updateBoxStyle = (key: string, value: any) => setShopData((prev: any) => ({ ...prev, login_config: { ...prev.login_config, box_style: { ...prev.login_config.box_style, [key]: value } } }));
     const updateConfig = (key: string, value: any) => setShopData((prev: any) => ({ ...prev, login_config: { ...prev.login_config, [key]: value } }));
-
+    
+    // 🟢 Helper สำหรับ Hero
+    const hero = shopData.login_config.hero_login || { is_visible: true, config: { width: 40, height: 50 } };
+    const updateHero = (key: string, value: any) => setShopData((prev: any) => ({ ...prev, login_config: { ...prev.login_config, hero_login: { ...prev.login_config.hero_login, [key]: value } } }));
+    const updateHeroConfig = (key: string, value: any) => setShopData((prev: any) => ({ ...prev, login_config: { ...prev.login_config, hero_login: { ...prev.login_config.hero_login, config: { ...prev.login_config.hero_login.config, [key]: value } } } }));
+    const resultsConfig = shopData.login_config.results_section || { is_visible: true, title: "ผลรางวัลล่าสุด", display_limit: 10, theme: "glass" };
+    const updateResultsConfig = (key: string, value: any) => setShopData((prev: any) => ({ ...prev, login_config: { ...prev.login_config, results_section: { ...prev.login_config.results_section, [key]: value } } }));
+    
+    const payoutConfig = shopData.login_config.payout_config || { is_visible: true, position: {x: 20, y: 65}, config: {width: 25}, rates: {top3: 900, tod3: 120, top2: 90, bottom2: 90, run_top: 3.2, run_bottom: 4.2} };
+    const updatePayoutConfig = (key: string, value: any) => setShopData((prev: any) => ({ ...prev, login_config: { ...prev.login_config, payout_config: { ...prev.login_config.payout_config, [key]: value } } }));
+    const updatePayoutRates = (key: string, value: any) => setShopData((prev: any) => ({ ...prev, login_config: { ...prev.login_config, payout_config: { ...prev.login_config.payout_config, rates: { ...prev.login_config.payout_config?.rates, [key]: value } } } }));
+    const updatePayoutBoxSize = (key: string, value: any) => setShopData((prev: any) => ({ ...prev, login_config: { ...prev.login_config, payout_config: { ...prev.login_config.payout_config, config: { ...prev.login_config.payout_config?.config, [key]: value } } } }));
+    
     const config = shopData.login_config;
     const style = config.box_style;
 
@@ -156,6 +170,275 @@ export default function ThemeSidebar({
                         </div>
                     )}
                 </section>
+
+                <section className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+                    <button onClick={() => toggleSection('hero')} className="flex items-center justify-between w-full mb-2">
+                        <h3 className="font-bold text-slate-800 flex items-center gap-2"><LayoutTemplate size={18} className="text-purple-500" /> ภาพประกอบ (Hero Image)</h3>
+                        {openSection === 'hero' ? <ChevronUp size={16}/> : <ChevronDown size={16}/>}
+                    </button>
+                    {openSection === 'hero' && (
+                        <div className="space-y-4 pt-2 animate-in fade-in slide-in-from-top-2">
+
+                            <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border">
+                                <div className="flex items-center gap-2">
+                                    {hero.is_visible ? <Eye size={16} className="text-emerald-500" /> : <EyeOff size={16} className="text-slate-400" />}
+                                    <span className="text-sm font-bold text-slate-700">แสดงภาพประกอบ</span>
+                                </div>
+                                <input type="checkbox" checked={hero.is_visible} onChange={(e) => updateHero('is_visible', e.target.checked)} className="w-5 h-5 accent-purple-600"/>
+                            </div>
+
+                            {/* อัปโหลดภาพ */}
+                            <div className={`relative h-32 bg-slate-100 rounded-xl overflow-hidden border-2 border-dashed ${hero.is_visible ? 'border-purple-300 hover:border-purple-500' : 'opacity-50 pointer-events-none'} transition-colors`}>
+                     
+                                {hero.Hero_url && <img src={hero.Hero_url} className="w-full h-full object-cover p-2"/>}
+                                <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-500 pointer-events-none">
+                                    {uploadingHero ? <Loader2 className="animate-spin text-purple-500"/> : (!hero.Hero_url && <ImageIcon size={24}/>)}
+                                    {!hero.Hero_url && <span className="text-[10px] font-bold mt-1 uppercase">อัปโหลดภาพ (PNG/WebP ลบพื้นหลัง)</span>}
+                                </div>
+                                <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={async (e) => {
+                                    if(e.target.files?.[0]){
+                                        setUploadingHero(true);
+                                        await onUploadHero(e.target.files[0]);
+                                        setUploadingHero(false);
+                                    }
+                                }}/>
+                            </div>
+
+                            {/* ปรับขนาด Hero */}
+                            <div className={`space-y-4 ${hero.is_visible ? '' : 'opacity-50 pointer-events-none'}`}>
+                                <div className="space-y-2">
+                                    <div className="flex justify-between text-xs font-bold text-slate-400 uppercase"><span>กว้าง (Width)</span><span>{hero.config?.width ?? 40}%</span></div>
+                                    <input type="range" min="10" max="100" value={hero.config?.width ?? 40} onChange={(e) => updateHeroConfig('width', parseInt(e.target.value))} className="w-full h-1.5 bg-slate-200 rounded-lg accent-purple-500 appearance-none cursor-pointer"/>
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="flex justify-between text-xs font-bold text-slate-400 uppercase"><span>สูง (Height)</span><span>{hero.config?.height ?? 50}%</span></div>
+                                    <input type="range" min="10" max="100" value={hero.config?.height ?? 50} onChange={(e) => updateHeroConfig('height', parseInt(e.target.value))} className="w-full h-1.5 bg-slate-200 rounded-lg accent-purple-500 appearance-none cursor-pointer"/>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </section>
+
+                {/* 🟢 Section ใหม่: ตารางผลรางวัล */}
+                <section className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+                    <button onClick={() => toggleSection('results')} className="flex items-center justify-between w-full mb-2">
+                        <h3 className="font-bold text-slate-800 flex items-center gap-2"><Trophy size={18} className="text-amber-500" /> ตารางผลรางวัล</h3>
+                        {openSection === 'results' ? <ChevronUp size={16}/> : <ChevronDown size={16}/>}
+                    </button>
+                    {openSection === 'results' && (
+                        <div className="space-y-4 pt-2 animate-in fade-in slide-in-from-top-2">
+                            {/* เปิด/ปิดตาราง */}
+                            <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border">
+                                <div className="flex items-center gap-2">
+                                    {resultsConfig.is_visible ? <Eye size={16} className="text-emerald-500" /> : <EyeOff size={16} className="text-slate-400" />}
+                                    <span className="text-sm font-bold text-slate-700">แสดงผลรางวัลหน้า Login</span>
+                                </div>
+                                <input type="checkbox" checked={resultsConfig.is_visible} onChange={(e) => updateResultsConfig('is_visible', e.target.checked)} className="w-5 h-5 accent-amber-500"/>
+                            </div>
+
+                            {/* ตั้งค่าข้อความและอื่นๆ */}
+                            <div className={`space-y-4 ${resultsConfig.is_visible ? '' : 'opacity-50 pointer-events-none'}`}>
+                                
+                                {/* 🟢 เพิ่มส่วนนี้: เลือกรูปแบบการ์ด */}
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">รูปแบบการ์ด (Card Style)</label>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        <button 
+                                            onClick={() => updateResultsConfig('results_style', 'classic')} 
+                                            className={`py-2 text-[10px] font-bold rounded-lg border transition-all ${resultsConfig.results_style === 'classic' || !resultsConfig.results_style ? 'bg-amber-50 border-amber-500 text-amber-700 shadow-sm' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
+                                        >
+                                            มาตรฐาน (Glass)
+                                        </button>
+                                        <button 
+                                            onClick={() => updateResultsConfig('results_style', 'ticket')} 
+                                            className={`py-2 text-[10px] font-bold rounded-lg border transition-all ${resultsConfig.results_style === 'ticket' ? 'bg-amber-50 border-amber-500 text-amber-700 shadow-sm' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
+                                        >
+                                            ตั๋วหวย (Ticket)
+                                        </button>
+                                        <button 
+                                            onClick={() => updateResultsConfig('results_style', 'minimal')} 
+                                            className={`py-2 text-[10px] font-bold rounded-lg border transition-all ${resultsConfig.results_style === 'minimal' ? 'bg-amber-50 border-amber-500 text-amber-700 shadow-sm' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
+                                        >
+                                            เรียบหรู (Minimal)
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-bold text-slate-400 uppercase">ข้อความหัวเรื่อง (Title)</label>
+                                    <input 
+                                        type="text" 
+                                        value={resultsConfig.title} 
+                                        onChange={(e) => updateResultsConfig('title', e.target.value)}
+                                        className="w-full bg-slate-50 border rounded-lg px-3 py-2 text-sm outline-none focus:border-amber-500"
+                                    />
+                                </div>
+                                
+                                <div className="space-y-2">
+                                    <div className="flex justify-between text-xs font-bold text-slate-400 uppercase">
+                                        <span>จำนวนที่แสดง (รายการ)</span>
+                                        <span>{resultsConfig.display_limit}</span>
+                                    </div>
+                                    <input 
+                                        type="range" min="4" max="20" step="2"
+                                        value={resultsConfig.display_limit} 
+                                        onChange={(e) => updateResultsConfig('display_limit', parseInt(e.target.value))} 
+                                        className="w-full h-1.5 bg-slate-200 rounded-lg accent-amber-500 appearance-none cursor-pointer"
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-bold text-slate-400 uppercase">สไตล์ตาราง (Theme)</label>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <button 
+                                            onClick={() => updateResultsConfig('theme', 'glass')}
+                                            className={`py-2 text-xs font-bold rounded-lg border ${resultsConfig.theme === 'glass' ? 'bg-amber-50 border-amber-500 text-amber-700' : 'bg-slate-50 text-slate-500'}`}
+                                        >
+                                            ใส (Glassmorphism)
+                                        </button>
+                                        <button 
+                                            onClick={() => updateResultsConfig('theme', 'solid')}
+                                            className={`py-2 text-xs font-bold rounded-lg border ${resultsConfig.theme === 'solid' ? 'bg-amber-50 border-amber-500 text-amber-700' : 'bg-slate-50 text-slate-500'}`}
+                                        >
+                                            ทึบ (Solid)
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </section>
+
+                {/* 🟢 Section ใหม่: กล่องโฆษณาเรทจ่าย */}
+                <section className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+                    <button onClick={() => toggleSection('payout')} className="flex items-center justify-between w-full mb-2">
+                        <h3 className="font-bold text-slate-800 flex items-center gap-2"><Wallet size={18} className="text-green-500" /> โฆษณาเรทจ่ายสูงสุด</h3>
+                        {openSection === 'payout' ? <ChevronUp size={16}/> : <ChevronDown size={16}/>}
+                    </button>
+                    {openSection === 'payout' && (
+                        <div className="space-y-4 pt-2 animate-in fade-in slide-in-from-top-2">
+                            {/* เปิด/ปิดกล่อง */}
+                            <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border">
+                                <div className="flex items-center gap-2">
+                                    {payoutConfig.is_visible ? <Eye size={16} className="text-emerald-500" /> : <EyeOff size={16} className="text-slate-400" />}
+                                    <span className="text-sm font-bold text-slate-700">แสดงกล่องเรทจ่าย</span>
+                                </div>
+                                <input type="checkbox" checked={payoutConfig.is_visible} onChange={(e) => updatePayoutConfig('is_visible', e.target.checked)} className="w-5 h-5 accent-green-500"/>
+                            </div>
+
+                            <div className={`space-y-4 ${payoutConfig.is_visible ? '' : 'opacity-50 pointer-events-none'}`}>
+                                
+                                {/* 🟢 เพิ่มส่วนนี้: ปุ่มเลือกสไตล์ (Layout Style) */}
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">รูปแบบการแสดงผล (Style)</label>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        <button 
+                                            onClick={() => updatePayoutConfig('payout_style', 'classic')} 
+                                            className={`py-2 text-[10px] font-bold rounded-lg border transition-all ${payoutConfig.payout_style === 'classic' || !payoutConfig.payout_style ? 'bg-green-50 border-green-500 text-green-700 shadow-sm' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
+                                        >
+                                            มาตรฐาน
+                                        </button>
+                                        <button 
+                                            onClick={() => updatePayoutConfig('payout_style', 'cascade')} 
+                                            className={`py-2 text-[10px] font-bold rounded-lg border transition-all ${payoutConfig.payout_style === 'cascade' ? 'bg-green-50 border-green-500 text-green-700 shadow-sm' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
+                                        >
+                                            การ์ดเฉียง
+                                        </button>
+                                        <button 
+                                            onClick={() => updatePayoutConfig('payout_style', 'grid')} 
+                                            className={`py-2 text-[10px] font-bold rounded-lg border transition-all ${payoutConfig.payout_style === 'grid' ? 'bg-green-50 border-green-500 text-green-700 shadow-sm' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
+                                        >
+                                            ตาราง 2 ช่อง
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* ปรับขนาด */}
+                                <div className="space-y-2">
+                                    <div className="flex justify-between text-xs font-bold text-slate-400 uppercase">
+                                        <span>ความกว้างกล่อง (Width)</span>
+                                        <span>{payoutConfig.config?.width ?? 25}%</span>
+                                    </div>
+                                    <input 
+                                        type="range" min="15" max="50" step="1"
+                                        value={payoutConfig.config?.width ?? 25} 
+                                        onChange={(e) => updatePayoutBoxSize('width', parseInt(e.target.value))} 
+                                        className="w-full h-1.5 bg-slate-200 rounded-lg accent-green-500 appearance-none cursor-pointer"
+                                    />
+                                </div>
+
+                                {/* ตั้งค่าตัวเลขเรทจ่าย */}
+                                <div className="p-3 bg-slate-50 rounded-xl border space-y-3">
+                                    <h4 className="text-[10px] font-bold text-slate-400 uppercase mb-2">ปรับแต่งตัวเลข</h4>
+                                    
+                                    <div className="grid grid-cols-2 gap-3">
+                                        {/* 3 ตัวบน */}
+                                        <div className="space-y-1">
+                                            <label className="text-xs font-bold text-slate-600">3 ตัวบน</label>
+                                            <input 
+                                                type="number" 
+                                                value={payoutConfig.rates?.top3 ?? 900} 
+                                                onChange={(e) => updatePayoutRates('top3', Number(e.target.value))}
+                                                className="w-full bg-white border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-green-500 font-bold text-green-600"
+                                            />
+                                        </div>
+                                        {/* 🟢 3 ตัวโต๊ด (เพิ่มใหม่) */}
+                                        <div className="space-y-1">
+                                            <label className="text-xs font-bold text-slate-600">3 ตัวโต๊ด</label>
+                                            <input 
+                                                type="number" 
+                                                value={payoutConfig.rates?.tod3 ?? 120} 
+                                                onChange={(e) => updatePayoutRates('tod3', Number(e.target.value))}
+                                                className="w-full bg-white border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-green-500 font-bold text-green-600"
+                                            />
+                                        </div>
+                                        {/* 🟢 2 ตัวบน (เพิ่มใหม่) */}
+                                        <div className="space-y-1">
+                                            <label className="text-xs font-bold text-slate-600">2 ตัวบน</label>
+                                            <input 
+                                                type="number" 
+                                                value={payoutConfig.rates?.top2 ?? 90} 
+                                                onChange={(e) => updatePayoutRates('top2', Number(e.target.value))}
+                                                className="w-full bg-white border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-green-500 font-bold text-green-600"
+                                            />
+                                        </div>
+                                        {/* 2 ตัวล่าง */}
+                                        <div className="space-y-1">
+                                            <label className="text-xs font-bold text-slate-600">2 ตัวล่าง</label>
+                                            <input 
+                                                type="number" 
+                                                value={payoutConfig.rates?.bottom2 ?? 90} 
+                                                onChange={(e) => updatePayoutRates('bottom2', Number(e.target.value))}
+                                                className="w-full bg-white border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-green-500 font-bold text-green-600"
+                                            />
+                                        </div>
+                                        {/* วิ่งบน */}
+                                        <div className="space-y-1">
+                                            <label className="text-xs font-bold text-slate-600">วิ่งบน</label>
+                                            <input 
+                                                type="number" step="0.1"
+                                                value={payoutConfig.rates?.run_top ?? 3.2} 
+                                                onChange={(e) => updatePayoutRates('run_top', Number(e.target.value))}
+                                                className="w-full bg-white border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-green-500 font-bold text-green-600"
+                                            />
+                                        </div>
+                                        {/* วิ่งล่าง */}
+                                        <div className="space-y-1">
+                                            <label className="text-xs font-bold text-slate-600">วิ่งล่าง</label>
+                                            <input 
+                                                type="number" step="0.1"
+                                                value={payoutConfig.rates?.run_bottom ?? 4.2} 
+                                                onChange={(e) => updatePayoutRates('run_bottom', Number(e.target.value))}
+                                                className="w-full bg-white border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-green-500 font-bold text-green-600"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </section>
+                
             </div>
 
             <div className="p-3 md:p-4 border-t bg-white shrink-0">
@@ -164,5 +447,6 @@ export default function ThemeSidebar({
                 </button>
             </div>
         </div>
+        
     );
 }
